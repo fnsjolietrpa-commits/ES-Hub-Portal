@@ -1,0 +1,331 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PDF Merger + 자동 출력 - 사용 가이드</title>
+<base target="_top">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    background: #f5f7fa; color: #2c3e50; line-height: 1.6;
+  }
+  .container { max-width: 900px; margin: 0 auto; padding: 32px 20px 60px; }
+  header {
+    text-align: center; padding: 40px 20px 32px;
+    background: linear-gradient(135deg, #1F0A3C 0%, #3b1a6e 100%);
+    color: white; border-radius: 12px; margin-bottom: 32px;
+  }
+  header h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.5px; }
+  header p { font-size: 15px; opacity: 0.9; }
+  .download-btn-wrap { text-align: center; margin: 32px 0; }
+  .download-btn {
+    display: inline-block; padding: 14px 36px; background: #1e88e5; color: white;
+    text-decoration: none; border-radius: 8px; font-size: 16px; font-weight: 600;
+    box-shadow: 0 4px 12px rgba(30,136,229,0.3); transition: all 0.2s;
+  }
+  .download-btn:hover { background: #1565c0; transform: translateY(-1px); }
+  .download-btn .size { font-size: 12px; opacity: 0.85; margin-left: 8px; font-weight: 400; }
+  details {
+    background: white; border-radius: 12px; margin-bottom: 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05); overflow: hidden;
+  }
+  details summary {
+    list-style: none; cursor: pointer; padding: 22px 32px;
+    display: flex; align-items: center; gap: 10px; user-select: none;
+  }
+  details summary::-webkit-details-marker { display: none; }
+  details summary h2 {
+    font-size: 22px; color: #1F0A3C; flex: 1; margin: 0;
+    display: flex; align-items: center; gap: 10px;
+  }
+  details summary .icon { font-size: 24px; }
+  details summary .chevron { font-size: 14px; color: #999; transition: transform 0.2s; }
+  details[open] summary .chevron { transform: rotate(180deg); }
+  details[open] summary { border-bottom: 2px solid #e3eaf2; }
+  .section-body { padding: 24px 32px 28px; }
+  .step { display: flex; gap: 20px; margin-bottom: 28px; padding-bottom: 28px; border-bottom: 1px dashed #e3eaf2; }
+  .step:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+  .step-num {
+    flex-shrink: 0; width: 36px; height: 36px; background: #1F0A3C; color: white;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 16px;
+  }
+  .step-content { flex: 1; min-width: 0; }
+  .step-content h3 { font-size: 17px; color: #1F0A3C; margin-bottom: 8px; }
+  .step-content p { color: #4a5568; font-size: 14px; margin-bottom: 12px; }
+  .mock { max-width: 100%; height: auto; border-radius: 8px; border: 1px solid #e0e6ed;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-top: 8px; display: block; }
+  .note {
+    background: #fff8e1; border-left: 4px solid #ffa726; padding: 12px 16px;
+    margin-top: 12px; border-radius: 4px; font-size: 13px; color: #6b4f0a;
+  }
+  .note strong { color: #b8780b; }
+  .warn {
+    background: #ffebee; border-left: 4px solid #e53935; padding: 12px 16px;
+    margin-top: 12px; border-radius: 4px; font-size: 13px; color: #7f1c1c;
+  }
+  .warn strong { color: #c62828; }
+  .tip {
+    background: #e8f5e9; border-left: 4px solid #66bb6a; padding: 12px 16px;
+    margin-top: 12px; border-radius: 4px; font-size: 13px; color: #2e5c2e;
+  }
+  .tip strong { color: #1b5e20; }
+  .field-list { list-style: none; margin: 12px 0; }
+  .field-list li { padding: 8px 0; border-bottom: 1px solid #f0f4f8; font-size: 14px; }
+  .field-list li:last-child { border-bottom: none; }
+  .field-list strong { color: #1F0A3C; display: inline-block; min-width: 160px; }
+  code {
+    background: #f4f6f8; padding: 2px 6px; border-radius: 4px;
+    font-family: "Consolas", "Monaco", monospace; font-size: 13px; color: #c2185b;
+  }
+  footer { text-align: center; margin-top: 40px; color: #8a94a6; font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>🖨 PDF Merger + 자동 출력</h1>
+  <p>픽업 PDF를 병합하고 SEAL # 스탬프 후 양면 자동 출력</p>
+</header>
+
+<div class="download-btn-wrap">
+  <a href="https://fnsul.sharepoint.com/:f:/s/FNSChicagoHub/IgDaKbQCissrT5QCfgUq9bKGAcUWXyEq0eQhB6xvkO1vvwA?e=5ahtVx" class="download-btn" target="_blank">
+    💾 다운로드 (SharePoint)
+    <span class="size">PDF Merger.zip</span>
+  </a>
+</div>
+
+<!-- 설치 가이드 -->
+<details open>
+<summary><h2><span class="icon">⬇️</span> 설치 가이드 (최초 1회)</h2><span class="chevron">▼</span></summary>
+<div class="section-body">
+
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-content">
+      <h3>위 다운로드 버튼 클릭</h3>
+      <p>파란 <strong>다운로드 버튼</strong>을 누르면 SharePoint 폴더로 이동합니다. <code>PDF Merger</code> 폴더를 다운로드하세요.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-content">
+      <h3>압축 해제 후 폴더 배치</h3>
+      <p>다운로드된 ZIP 파일을 우클릭 → <strong>"압축 풀기"</strong>합니다. 생성된 <code>PDF Merger</code> 폴더를 원하는 위치에 놓으세요.</p>
+      <div class="warn">
+        <strong>⚠️ _internal 폴더를 절대 삭제하지 마세요!</strong><br>
+        폴더 안에 <code>PDF Merger.exe</code>와 <code>_internal</code> 폴더가 <strong>반드시 함께</strong> 있어야 합니다.
+        <code>_internal</code>을 지우거나 <code>.exe</code>만 따로 복사하면 실행되지 않습니다.<br>
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-content">
+      <h3>처음 실행 시 Windows 보안 경고</h3>
+      <p>EXE를 더블클릭하면 처음 한 번은 아래와 같은 경고가 뜹니다. 이건 정상입니다.</p>
+
+<svg class="mock" viewBox="0 0 640 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Windows Defender 경고">
+  <rect width="640" height="360" fill="#eef0f3"/>
+  <rect x="90" y="46" width="460" height="268" rx="4" fill="#ffffff" stroke="#cfd4da"/>
+  <rect x="90" y="46" width="460" height="60" fill="#0b3d91"/>
+  <text x="116" y="76" font-family="Segoe UI, sans-serif" font-size="18" font-weight="600" fill="#ffffff">Windows protected your PC</text>
+  <text x="116" y="96" font-family="Segoe UI, sans-serif" font-size="11" fill="#cdd9ef">Microsoft Defender SmartScreen</text>
+  <text x="116" y="146" font-family="Segoe UI, sans-serif" font-size="13" fill="#333">Microsoft Defender SmartScreen prevented an unrecognized</text>
+  <text x="116" y="166" font-family="Segoe UI, sans-serif" font-size="13" fill="#333">app from starting. Running this app might put your PC at risk.</text>
+  <rect x="115" y="196" width="74" height="22" fill="none" stroke="#e53935" stroke-width="2.5" rx="2"/>
+  <text x="120" y="212" font-family="Segoe UI, sans-serif" font-size="13" fill="#0067b8" font-weight="600">More info</text>
+  <rect x="438" y="262" width="92" height="32" fill="#e1e1e1" stroke="#bdbdbd"/>
+  <text x="484" y="283" font-family="Segoe UI, sans-serif" font-size="13" fill="#333" text-anchor="middle">Don't run</text>
+</svg>
+
+      <p style="margin-top:12px;"><strong>"More info"</strong>를 클릭하면 <strong>"Run anyway"</strong> 버튼이 나타납니다.</p>
+
+<svg class="mock" viewBox="0 0 640 380" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Windows Defender Run anyway">
+  <rect width="640" height="380" fill="#eef0f3"/>
+  <rect x="90" y="36" width="460" height="300" rx="4" fill="#ffffff" stroke="#cfd4da"/>
+  <rect x="90" y="36" width="460" height="60" fill="#0b3d91"/>
+  <text x="116" y="66" font-family="Segoe UI, sans-serif" font-size="18" font-weight="600" fill="#ffffff">Windows protected your PC</text>
+  <text x="116" y="86" font-family="Segoe UI, sans-serif" font-size="11" fill="#cdd9ef">Microsoft Defender SmartScreen</text>
+  <text x="116" y="134" font-family="Segoe UI, sans-serif" font-size="13" fill="#333">Microsoft Defender SmartScreen prevented an unrecognized app from starting.</text>
+  <text x="116" y="186" font-family="Segoe UI, sans-serif" font-size="12" fill="#666">App:</text>
+  <text x="170" y="186" font-family="Segoe UI, sans-serif" font-size="12" fill="#222">PDF Merger.exe</text>
+  <text x="116" y="206" font-family="Segoe UI, sans-serif" font-size="12" fill="#666">Publisher:</text>
+  <text x="186" y="206" font-family="Segoe UI, sans-serif" font-size="12" fill="#222">Unknown publisher</text>
+  <rect x="334" y="284" width="96" height="32" fill="#e1e1e1" stroke="#e53935" stroke-width="2.5"/>
+  <text x="382" y="305" font-family="Segoe UI, sans-serif" font-size="13" fill="#222" text-anchor="middle">Run anyway</text>
+  <rect x="438" y="284" width="92" height="32" fill="#e1e1e1" stroke="#bdbdbd"/>
+  <text x="484" y="305" font-family="Segoe UI, sans-serif" font-size="13" fill="#333" text-anchor="middle">Don't run</text>
+</svg>
+
+      <div class="tip">
+        <strong>💡 한 번만 하면 됩니다:</strong> 처음 실행 후 이 경고가 다시 뜨지 않습니다.
+      </div>
+    </div>
+  </div>
+
+</div></details>
+
+<!-- 사용 가이드 -->
+<details open>
+<summary><h2><span class="icon">📖</span> 사용 가이드</h2><span class="chevron">▼</span></summary>
+<div class="section-body">
+
+  <p style="margin-bottom: 20px; color: #4a5568; font-size: 14px;">
+    EXE를 실행하면 아래와 같은 창이 열립니다. 픽업 PDF들을 병합하고, SEAL # 스탬프를 찍은 후 양면으로 자동 출력합니다.
+  </p>
+
+  <!-- App UI mockup -->
+<svg class="mock" viewBox="0 0 720 500" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="PDF Merger 실행 화면" style="max-width:700px; margin: 0 auto 24px;">
+  <rect width="720" height="500" fill="#e8eaed"/>
+  <!-- Window chrome -->
+  <rect x="10" y="10" width="700" height="480" rx="8" fill="#f0f0f0" stroke="#c0c0c0"/>
+  <rect x="10" y="10" width="700" height="32" rx="8" fill="#1F0A3C"/>
+  <rect x="10" y="30" width="700" height="12" fill="#1F0A3C"/>
+  <text x="360" y="31" font-family="Segoe UI, sans-serif" font-size="12" fill="#ffffff" text-anchor="middle">PDF Merger + 자동 출력</text>
+
+  <!-- 입력 섹션 -->
+  <rect x="24" y="54" width="672" height="54" rx="6" fill="#fff" stroke="#c8ccd2"/>
+  <text x="32" y="68" font-family="Segoe UI, sans-serif" font-size="10" fill="#888">입력 (ZIP 파일 또는 폴더)</text>
+  <rect x="32" y="72" width="470" height="24" rx="4" fill="#fff" stroke="#d0d5dd"/>
+  <text x="40" y="88" font-family="Segoe UI, sans-serif" font-size="11" fill="#aaa">C:\Users\...\pickups.zip</text>
+  <rect x="510" y="72" width="72" height="24" rx="4" fill="#e8eaed" stroke="#c8ccd2"/>
+  <text x="546" y="88" font-family="Segoe UI, sans-serif" font-size="11" fill="#333" text-anchor="middle">ZIP 선택</text>
+  <rect x="590" y="72" width="72" height="24" rx="4" fill="#e8eaed" stroke="#c8ccd2"/>
+  <text x="626" y="88" font-family="Segoe UI, sans-serif" font-size="11" fill="#333" text-anchor="middle">폴더 선택</text>
+
+  <!-- 프린터 섹션 -->
+  <rect x="24" y="116" width="672" height="54" rx="6" fill="#fff" stroke="#c8ccd2"/>
+  <text x="32" y="130" font-family="Segoe UI, sans-serif" font-size="10" fill="#888">프린터</text>
+  <rect x="32" y="134" width="540" height="24" rx="4" fill="#fff" stroke="#d0d5dd"/>
+  <text x="40" y="150" font-family="Segoe UI, sans-serif" font-size="11" fill="#333">HP LaserJet MFP M428fdw (기본)</text>
+  <text x="564" y="150" font-family="Segoe UI, sans-serif" font-size="14" fill="#555">▾</text>
+  <rect x="596" y="134" width="36" height="24" rx="4" fill="#e8eaed" stroke="#c8ccd2"/>
+  <text x="614" y="150" font-family="Segoe UI, sans-serif" font-size="13" fill="#555" text-anchor="middle">↻</text>
+
+  <!-- SEAL # 섹션 -->
+  <rect x="24" y="178" width="672" height="54" rx="6" fill="#fff" stroke="#c8ccd2"/>
+  <text x="32" y="192" font-family="Segoe UI, sans-serif" font-size="10" fill="#888">SEAL #  (선택 · 4자리 숫자)</text>
+  <text x="32" y="216" font-family="Segoe UI, sans-serif" font-size="11" fill="#555">시작 번호:</text>
+  <rect x="100" y="204" width="60" height="22" rx="4" fill="#fff" stroke="#d0d5dd"/>
+  <text x="117" y="219" font-family="Segoe UI, sans-serif" font-size="12" fill="#333" text-anchor="middle">1001</text>
+  <text x="170" y="219" font-family="Segoe UI, sans-serif" font-size="11" fill="#999">→  FNS 1001, FNS 1002, …    (비워두면 SEAL 없이 출력)</text>
+
+  <!-- 버튼 -->
+  <rect x="24" y="244" width="110" height="30" rx="5" fill="#e8eaed" stroke="#c8ccd2"/>
+  <text x="79" y="263" font-family="Segoe UI, sans-serif" font-size="12" fill="#333" text-anchor="middle">▶  병합만</text>
+  <rect x="142" y="244" width="130" height="30" rx="5" fill="#1F0A3C"/>
+  <text x="207" y="263" font-family="Segoe UI, sans-serif" font-size="12" fill="#fff" text-anchor="middle">🖨  병합 + 출력</text>
+  <text x="286" y="263" font-family="Segoe UI, sans-serif" font-size="11" fill="#888">7/7</text>
+
+  <!-- Progress bar -->
+  <rect x="24" y="282" width="672" height="8" rx="4" fill="#e0e0e0"/>
+  <rect x="24" y="282" width="672" height="8" rx="4" fill="#1F0A3C"/>
+
+  <!-- 로그 -->
+  <rect x="24" y="298" width="672" height="180" rx="6" fill="#fff" stroke="#c8ccd2"/>
+  <text x="32" y="312" font-family="Segoe UI, sans-serif" font-size="10" fill="#888">로그</text>
+  <rect x="32" y="316" width="656" height="154" rx="4" fill="#fafafa"/>
+  <text x="40" y="334" font-family="Consolas, monospace" font-size="10" fill="#555">CHECK LIST: C:\...\PDF Merger\_internal\CHECK LIST.pdf</text>
+  <text x="40" y="350" font-family="Consolas, monospace" font-size="10" fill="#555">프린터 7개 / 기본: HP LaserJet MFP M428fdw</text>
+  <text x="40" y="366" font-family="Consolas, monospace" font-size="10" fill="#555">PDF 7개 발견</text>
+  <text x="40" y="382" font-family="Consolas, monospace" font-size="10" fill="#555">SEAL #: FNS 1001 ~ FNS 1007</text>
+  <text x="40" y="398" font-family="Consolas, monospace" font-size="10" fill="#555">병합 중 (픽업 + CHECK LIST)...</text>
+  <text x="40" y="414" font-family="Consolas, monospace" font-size="10" fill="#2e7d32">  [7/7] ES05-260617-07.pdf  SEAL: FNS 1007</text>
+  <text x="40" y="430" font-family="Consolas, monospace" font-size="10" fill="#555">출력 → HP LaserJet MFP M428fdw  (양면 / 긴 면 기준)</text>
+  <text x="40" y="446" font-family="Consolas, monospace" font-size="10" fill="#2e7d32">  출력 완료 · 임시 파일 삭제 완료</text>
+</svg>
+
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-content">
+      <h3>입력 선택 — ZIP 또는 폴더</h3>
+      <p>픽업 PDF들이 담긴 <strong>ZIP 파일</strong> 또는 <strong>폴더</strong>를 선택합니다.</p>
+      <ul class="field-list">
+        <li><strong>ZIP 선택</strong> — ZIP 파일을 직접 선택. 자동으로 압축 해제 후 병합</li>
+        <li><strong>폴더 선택</strong> — PDF가 들어있는 폴더를 선택</li>
+      </ul>
+      <div class="tip">
+        <strong>💡</strong> PDF는 파일명 기준으로 자동 정렬(자연 정렬)됩니다. 파일명 앞에 번호를 붙여두면 순서대로 처리됩니다.
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-content">
+      <h3>프린터 선택</h3>
+      <p>드롭다운에서 사용할 프린터를 선택합니다. 기본 프린터가 자동으로 선택됩니다. 목록이 안 뜨면 <strong>↻ 새로고침</strong> 버튼을 누르세요.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-content">
+      <h3>SEAL # 입력 (선택사항)</h3>
+      <p><strong>4자리 시작 번호</strong>를 입력하면 각 PDF에 SEAL # 스탬프가 자동으로 찍힙니다.</p>
+      <ul class="field-list">
+        <li><strong>입력 예: 1001</strong> — 1번 PDF → FNS 1001, 2번 PDF → FNS 1002, ...</li>
+        <li><strong>비워두면</strong> — SEAL 스탬프 없이 그대로 병합</li>
+      </ul>
+      <div class="note">
+        <strong>스탬프 위치:</strong> 픽업 PDF의 SPECIAL INSTRUCTION 섹션 빈칸에 자동으로 삽입됩니다.
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">4</div>
+    <div class="step-content">
+      <h3>버튼 클릭 — 병합만 / 병합+출력</h3>
+      <p>버튼을 누르면 <strong>확인 팝업</strong>이 먼저 뜹니다. SEAL # 정보를 확인 후 OK를 누르면 시작됩니다.</p>
+      <ul class="field-list">
+        <li><strong>▶ 병합만</strong> — 픽업 PDF + CHECK LIST를 병합해서 Downloads 폴더에 저장</li>
+        <li><strong>🖨 병합+출력</strong> — 병합 후 지정 프린터로 <strong>양면(긴 면 기준)</strong> 출력, 완료 후 임시 파일 자동 삭제</li>
+      </ul>
+      <div class="tip">
+        <strong>💡 CHECK LIST는 별도 선택 불필요:</strong> EXE 안에 이미 포함되어 있어서 자동으로 사용됩니다.
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">5</div>
+    <div class="step-content">
+      <h3>결과 확인</h3>
+      <p>로그 창에서 진행 상황을 실시간으로 확인할 수 있습니다.</p>
+      <ul class="field-list">
+        <li><strong>병합만</strong> — <code>Downloads\merged_날짜시간.pdf</code>로 저장됨</li>
+        <li><strong>병합+출력</strong> — 출력 완료 후 임시 PDF 자동 삭제됨 (Downloads에 파일 남지 않음)</li>
+      </ul>
+    </div>
+  </div>
+
+</div></details>
+
+<!-- 알아두면 편한 것들 -->
+<details>
+<summary><h2><span class="icon">💡</span> 알아두면 편한 것들</h2><span class="chevron">▼</span></summary>
+<div class="section-body">
+  <ul class="field-list">
+    <li><strong>_internal 폴더 삭제 금지</strong> — SumatraPDF(양면 출력 엔진)와 CHECK LIST.pdf가 들어있습니다. 지우면 실행 자체가 안 됩니다.</li>
+    <li><strong>출력이 단면으로 나올 때</strong> — 프린터가 양면을 지원하는지 확인하세요. 이 프로그램은 항상 <strong>양면(긴 면 기준)</strong>으로 전송합니다.</li>
+    <li><strong>CHECK LIST 내용 변경 필요할 때</strong> — 담당자에게 요청하거나 새 EXE를 재배포해야 합니다 (CHECK LIST.pdf는 EXE 내부에 포함됨).</li>
+    <li><strong>SEAL # 4자리가 아니면</strong> — 입력이 차단됩니다. 숫자 4자리만 입력 가능합니다.</li>
+    <li><strong>PDF 순서가 잘못됐을 때</strong> — 파일명 앞에 <code>01_</code>, <code>02_</code> 같이 번호를 붙이면 원하는 순서로 정렬됩니다.</li>
+  </ul>
+</div></details>
+
+<footer>
+  문의/오류 보고: 담당자에게 연락주세요
+</footer>
+
+</div>
+</body>
+</html>

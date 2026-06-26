@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PWS 재고 현황 리포트 - Guide</title>
+<base target="_top">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    background: #f0f2f7; color: #1e2535; line-height: 1.6;
+  }
+  .container { max-width: 880px; margin: 0 auto; padding: 32px 20px 64px; }
+
+  header {
+    text-align: center; padding: 36px 20px 28px;
+    background: #D45800;
+    color: white; border-radius: 12px; margin-bottom: 32px;
+  }
+  header h1 { font-size: 26px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.5px; }
+  header p { font-size: 14px; opacity: 0.9; margin-bottom: 16px; }
+  .schedule-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.2); border-radius: 20px;
+    padding: 6px 16px; font-size: 14px; font-weight: 600;
+  }
+
+  .lang-block {
+    background: #fff; border-radius: 14px; margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow: hidden;
+  }
+  .lang-block > summary {
+    list-style: none; cursor: pointer; padding: 18px 28px;
+    display: flex; align-items: center; gap: 12px; user-select: none;
+    border-left: 5px solid transparent;
+  }
+  .lang-block > summary::-webkit-details-marker { display: none; }
+  .lang-block.ko > summary { border-left-color: #D45800; }
+  .lang-block.en > summary { border-left-color: #a84000; }
+  .lang-block > summary h2 {
+    font-size: 18px; font-weight: 700; color: #1A0A36;
+    flex: 1; margin: 0; display: flex; align-items: center; gap: 10px;
+  }
+  .lang-block > summary .flag { font-size: 22px; }
+  .lang-block > summary .chev { font-size: 12px; color: #a0aab8; transition: transform 0.2s; }
+  .lang-block[open] > summary .chev { transform: rotate(180deg); }
+  .lang-block[open] > summary { border-bottom: 1.5px solid #e6eaf2; }
+  .lang-body { padding: 20px 24px 24px; background: #f7f8fc; }
+
+  .section-wrap {
+    background: #fff; border-radius: 10px; margin-bottom: 14px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05); overflow: hidden;
+  }
+  .section-wrap > summary {
+    list-style: none; cursor: pointer; padding: 16px 24px;
+    display: flex; align-items: center; gap: 10px; user-select: none;
+  }
+  .section-wrap > summary::-webkit-details-marker { display: none; }
+  .section-wrap > summary h3 {
+    font-size: 15px; font-weight: 700; color: #1A0A36;
+    flex: 1; margin: 0; display: flex; align-items: center; gap: 8px;
+  }
+  .section-wrap > summary .ico { font-size: 18px; }
+  .section-wrap > summary .chev { font-size: 11px; color: #a0aab8; transition: transform 0.2s; }
+  .section-wrap[open] > summary .chev { transform: rotate(180deg); }
+  .section-wrap[open] > summary { border-bottom: 1px solid #e6eaf2; }
+  .section-body { padding: 20px 24px 24px; }
+
+  .step { display: flex; gap: 16px; margin-bottom: 22px; padding-bottom: 22px; border-bottom: 1px dashed #e3e8f0; }
+  .step:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+  .step-num {
+    flex-shrink: 0; width: 32px; height: 32px; background: #1A0A36; color: #fff;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 13px; margin-top: 2px;
+  }
+  .step-content { flex: 1; min-width: 0; }
+  .step-content h4 { font-size: 14px; font-weight: 700; color: #1A0A36; margin-bottom: 6px; }
+  .step-content p { font-size: 14px; color: #4a5568; margin-bottom: 8px; line-height: 1.7; }
+  .step-content p:last-child { margin-bottom: 0; }
+
+  .note {
+    background: #fff8e1; border-left: 3px solid #f5a623;
+    padding: 9px 13px; margin-top: 8px; border-radius: 0 6px 6px 0;
+    font-size: 13.5px; color: #6b4a08;
+  }
+  .note strong { color: #a36804; }
+  .tip {
+    background: #edf7ed; border-left: 3px solid #52b152;
+    padding: 9px 13px; margin-top: 8px; border-radius: 0 6px 6px 0;
+    font-size: 13.5px; color: #275427;
+  }
+  .tip strong { color: #1d6b1d; }
+
+  .item-list { list-style: none; margin: 8px 0; }
+  .item-list li {
+    padding: 7px 0 7px 16px; border-bottom: 1px solid #eff2f8;
+    font-size: 14px; color: #4a5568; position: relative;
+  }
+  .item-list li::before { content: "•"; position: absolute; left: 0; color: #D45800; font-weight: bold; }
+  .item-list li:last-child { border-bottom: none; }
+
+  .color-chip {
+    display: inline-block; width: 13px; height: 13px; border-radius: 2px;
+    vertical-align: middle; margin-right: 5px; border: 1px solid rgba(0,0,0,0.15);
+  }
+
+  /* Email mockup */
+  .email-set-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #888; margin: 16px 0 6px; }
+  .email-mock { border: 1px solid #d0d7e4; border-radius: 10px; overflow: hidden; margin-bottom: 16px; font-size: 13px; }
+  .email-topbar { background: #e8ecf4; padding: 10px 16px; border-bottom: 1px solid #d0d7e4; }
+  .email-topbar .subject { font-weight: 700; font-size: 14px; color: #1a2035; margin-bottom: 6px; }
+  .email-topbar .meta { font-size: 12px; color: #666; line-height: 1.8; }
+  .email-topbar .meta b { color: #444; min-width: 52px; display: inline-block; }
+  .email-body-wrap { padding: 18px 20px; background: #fff; overflow-x: auto; }
+  .email-body-wrap p { font-size: 13px; color: #333; margin-bottom: 8px; line-height: 1.6; }
+  .email-table { border-collapse: collapse; font-size: 12px; margin: 10px 0; }
+  .email-table th { background: #D6DCE4; color: #1e2535; padding: 7px 14px; border: 1px solid #bbb; text-align: center; white-space: nowrap; }
+  .email-table td { padding: 5px 14px; border: 1px solid #ddd; white-space: nowrap; }
+  .email-table .row-yellow { background: #FFFF00; }
+  .email-table .row-total { background: #D6DCE4; font-weight: bold; }
+  .email-table .num { text-align: right; }
+  .email-alert-topbar { background: #fff0f0; border-bottom: 1px solid #fccaca; }
+  .email-alert-topbar .subject { color: #b91c1c; }
+
+  footer { text-align: center; margin-top: 36px; color: #8a94a6; font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>🏭 PWS 재고 현황 리포트</h1>
+  <p>PWS 자재별 재고일수 산출 및 담당자 이메일 발송</p>
+  <div class="schedule-badge">🕐 매일 오전 7:00 자동 실행</div>
+</header>
+
+<!-- KOREAN -->
+<details class="lang-block ko" open>
+<summary>
+  <span class="flag">🇰🇷</span>
+  <h2>한국어 설명</h2>
+  <span class="chev">▼</span>
+</summary>
+<div class="lang-body">
+
+  <details class="section-wrap" open>
+  <summary>
+    <h3><span class="ico">📖</span> 어떤 일을 하나요?</h3>
+    <span class="chev">▼</span>
+  </summary>
+  <div class="section-body">
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h4>WMS 자동 로그인 (백그라운드 실행)</h4>
+        <p>스케줄링용으로 설계되어 브라우저 창이 뜨지 않고 백그라운드에서 조용히 실행됩니다. 창고관리시스템(WMS)에 자동으로 접속합니다.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h4>PWS 재고 조회 및 다운로드</h4>
+        <p>WMS에서 <strong>Inventory By Attribute</strong> 메뉴로 이동해 PWS 필터를 걸고 검색합니다. 결과를 엑셀 파일로 다운로드해 지정 폴더에 저장합니다.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h4>자재별 재고일수 계산</h4>
+        <p>자재별 현재 수량을 정리하고, 하루에 얼마나 필요한지(BOM 기준 × 일일 목표 1,100팩)를 나눠 며칠치 재고가 남았는지 계산합니다. 불량품(Hold)은 제외하고 실제 사용 가능한 수량만 씁니다.</p>
+        <ul class="item-list">
+          <li><span class="color-chip" style="background:#FFFF00; border-color:#ccc;"></span><strong>노란색으로 강조</strong> — 재고일수가 <strong>10일 미만</strong>인 자재 (긴급 수급 필요)</li>
+          <li>서로 대체 가능한 자재들은 묶어서 합산한 뒤 판단합니다</li>
+        </ul>
+        <div class="note"><strong>⚠️ 처음 보는 자재가 나타난 경우:</strong> 등록되지 않은 자재가 데이터에 있으면 관리자에게 별도 알림 이메일을 보내고, 해당 자재는 재고일수 계산에서 제외됩니다.</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <h4>담당자 이메일 발송</h4>
+        <p>정리된 재고 현황을 표 형태로 만들어 Gmail로 발송합니다. 이메일 본문에 Owner, 자재명, 수량, 재고일수가 포함되며, 노란색 강조 표시도 그대로 이메일에 반영됩니다.</p>
+        <div class="tip"><strong>💡 엑셀 파일도 저장:</strong> 이메일 발송과 함께 WMS_Inventory_Pivot.xlsx 파일도 로컬에 저장됩니다.</div>
+      </div>
+    </div>
+
+  </div>
+  </details>
+
+  <details class="section-wrap" open>
+  <summary>
+    <h3><span class="ico">📧</span> 실제 이메일 예시</h3>
+    <span class="chev">▼</span>
+  </summary>
+  <div class="section-body">
+
+    <div class="email-set-label">① 정기 재고 현황 이메일</div>
+    <div class="email-mock">
+      <div class="email-topbar">
+        <div class="subject">[VMI] PWS 재고 현황 - 2026/06/25</div>
+        <div class="meta">
+          <b>보낸 사람</b> fns.joliet@gmail.com<br>
+          <b>받는 사람</b> andrew.ahn@fnsusa.com
+        </div>
+      </div>
+      <div class="email-body-wrap">
+        <p>안녕하세요, FNS 시카고 WH 안대진입니다.<br>
+        2026/06/25일자 1,100팩 기준 PWS 재고 현황 송부드립니다.</p>
+        <table class="email-table">
+          <thead>
+            <tr>
+              <th>Owner</th><th>Item Number</th><th>Item Description</th>
+              <th>Total QTY</th><th>Hold QTY</th><th>Net QTY</th>
+              <th>BOM</th><th>재고일수</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>PWS</td><td>MAT-EP-001</td><td>END PLATE (SEA)</td>
+              <td class="num">8,800</td><td class="num">0</td><td class="num">8,800</td>
+              <td class="num">4</td><td class="num">2.0</td>
+            </tr>
+            <tr class="row-yellow">
+              <td>PWS</td><td>MAT-BR-101</td><td>BUSBAR RD (LSEVK)</td>
+              <td class="num">7,260</td><td class="num">440</td><td class="num">6,820</td>
+              <td class="num">2</td><td class="num"><strong>3.1</strong></td>
+            </tr>
+            <tr class="row-yellow">
+              <td>PWS</td><td>MAT-BL-102</td><td>BUSBAR LD (LSEVK)</td>
+              <td class="num">6,050</td><td class="num">550</td><td class="num">5,500</td>
+              <td class="num">2</td><td class="num"><strong>2.5</strong></td>
+            </tr>
+            <tr>
+              <td>PWS</td><td>MAT-PP-201</td><td>PU PAD (BOBAEK)</td>
+              <td class="num">24,200</td><td class="num">0</td><td class="num">24,200</td>
+              <td class="num">10</td><td class="num">22.0</td>
+            </tr>
+            <tr>
+              <td>PWS</td><td>MAT-AG-301</td><td>AeroGel (AM-TEC)</td>
+              <td class="num">18,700</td><td class="num">1,100</td><td class="num">17,600</td>
+              <td class="num">8</td><td class="num">16.0</td>
+            </tr>
+            <tr style="color:#aaa; font-style:italic;"><td colspan="8" style="text-align:center; padding:4px; font-size:12px;">... 나머지 자재 ...</td></tr>
+            <tr class="row-total">
+              <td colspan="7" style="padding:6px 14px;">Grand Total</td>
+              <td class="num">—</td>
+            </tr>
+          </tbody>
+        </table>
+        <p style="font-size:12px; color:#777; margin-top:8px;">※ 노란색 행 = 재고일수 10일 미만 (긴급 수급 필요)</p>
+      </div>
+    </div>
+
+    <div class="email-set-label">② 신규 자재 감지 시 알림 이메일</div>
+    <div class="email-mock">
+      <div class="email-topbar email-alert-topbar">
+        <div class="subject">[PWS재고] ⚠️ BOM 미등록 자재 감지 — 확인 필요</div>
+        <div class="meta">
+          <b>보낸 사람</b> fns.joliet@gmail.com<br>
+          <b>받는 사람</b> hana.oh@fnsusa.com
+        </div>
+      </div>
+      <div class="email-body-wrap">
+        <p>다음 자재가 WMS 데이터에 새로 나타났으나 BOM 설정에 등록되어 있지 않습니다:</p>
+        <p style="background:#fff8e1; padding:8px 12px; border-left:3px solid #f5a623; font-family:monospace; font-size:13px;">
+          MAT-XX-999 — NEW COMPONENT (Owner: PWS)
+        </p>
+        <p>해당 자재는 이번 재고 계산에서 제외되었습니다.<br>
+        BOM 파일에 등록 후 다음 실행 시 자동으로 포함됩니다.</p>
+      </div>
+    </div>
+
+  </div>
+  </details>
+
+</div>
+</details>
+
+<!-- ENGLISH -->
+<details class="lang-block en">
+<summary>
+  <span class="flag">🇺🇸</span>
+  <h2>English Guide</h2>
+  <span class="chev">▼</span>
+</summary>
+<div class="lang-body">
+
+  <details class="section-wrap" open>
+  <summary>
+    <h3><span class="ico">📖</span> What it does</h3>
+    <span class="chev">▼</span>
+  </summary>
+  <div class="section-body">
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h4>WMS Login (Background)</h4>
+        <p>Built for scheduled runs — no browser window appears. The computer signs into the warehouse management system (WMS) quietly on its own.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h4>PWS Inventory Query & Download</h4>
+        <p>Navigates to the Inventory By Attribute screen in WMS, filters for PWS, runs the search, and saves the results as an Excel file to a designated folder.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h4>Days of Supply per Material</h4>
+        <p>Divides the usable on-hand quantity (excluding any items on hold) by the daily requirement — based on how many units each material goes into per pack, times a daily target of 1,100 packs.</p>
+        <ul class="item-list">
+          <li><span class="color-chip" style="background:#FFFF00; border-color:#ccc;"></span><strong>Yellow highlight</strong> — fewer than <strong>10 days</strong> of stock remaining (urgent reorder needed)</li>
+          <li>Materials that can substitute for each other are grouped together before checking</li>
+        </ul>
+        <div class="note"><strong>⚠️ Unknown material found:</strong> If a material appears in the data that hasn't been set up yet, the admin receives a separate alert email. That material is excluded from the days-of-supply calculation.</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <h4>Report Email to Team</h4>
+        <p>Sends a formatted table via Gmail showing owner, material name, quantity, and days of supply. The yellow highlights carry over directly into the email.</p>
+        <div class="tip"><strong>💡 Excel file also saved locally:</strong> Along with the email, WMS_Inventory_Pivot.xlsx is saved to the download folder.</div>
+      </div>
+    </div>
+
+  </div>
+  </details>
+
+  <details class="section-wrap" open>
+  <summary>
+    <h3><span class="ico">📧</span> Sample emails</h3>
+    <span class="chev">▼</span>
+  </summary>
+  <div class="section-body">
+
+    <div class="email-set-label">① Regular inventory report</div>
+    <div class="email-mock">
+      <div class="email-topbar">
+        <div class="subject">[VMI] PWS 재고 현황 - 2026/06/25</div>
+        <div class="meta">
+          <b>From</b> fns.joliet@gmail.com<br>
+          <b>To</b> andrew.ahn@fnsusa.com
+        </div>
+      </div>
+      <div class="email-body-wrap">
+        <p>안녕하세요, FNS 시카고 WH 안대진입니다.<br>
+        2026/06/25일자 1,100팩 기준 PWS 재고 현황 송부드립니다.</p>
+        <table class="email-table">
+          <thead>
+            <tr>
+              <th>Owner</th><th>Item Number</th><th>Item Description</th>
+              <th>Total QTY</th><th>Hold QTY</th><th>Net QTY</th>
+              <th>BOM</th><th>Days of Supply</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>PWS</td><td>MAT-EP-001</td><td>END PLATE (SEA)</td>
+              <td class="num">8,800</td><td class="num">0</td><td class="num">8,800</td>
+              <td class="num">4</td><td class="num">2.0</td>
+            </tr>
+            <tr class="row-yellow">
+              <td>PWS</td><td>MAT-BR-101</td><td>BUSBAR RD (LSEVK)</td>
+              <td class="num">7,260</td><td class="num">440</td><td class="num">6,820</td>
+              <td class="num">2</td><td class="num"><strong>3.1</strong></td>
+            </tr>
+            <tr class="row-yellow">
+              <td>PWS</td><td>MAT-BL-102</td><td>BUSBAR LD (LSEVK)</td>
+              <td class="num">6,050</td><td class="num">550</td><td class="num">5,500</td>
+              <td class="num">2</td><td class="num"><strong>2.5</strong></td>
+            </tr>
+            <tr>
+              <td>PWS</td><td>MAT-PP-201</td><td>PU PAD (BOBAEK)</td>
+              <td class="num">24,200</td><td class="num">0</td><td class="num">24,200</td>
+              <td class="num">10</td><td class="num">22.0</td>
+            </tr>
+            <tr>
+              <td>PWS</td><td>MAT-AG-301</td><td>AeroGel (AM-TEC)</td>
+              <td class="num">18,700</td><td class="num">1,100</td><td class="num">17,600</td>
+              <td class="num">8</td><td class="num">16.0</td>
+            </tr>
+            <tr style="color:#aaa; font-style:italic;"><td colspan="8" style="text-align:center; padding:4px; font-size:12px;">... other materials ...</td></tr>
+            <tr class="row-total">
+              <td colspan="7" style="padding:6px 14px;">Grand Total</td>
+              <td class="num">—</td>
+            </tr>
+          </tbody>
+        </table>
+        <p style="font-size:12px; color:#777; margin-top:8px;">※ Yellow rows = fewer than 10 days of supply (urgent reorder needed)</p>
+      </div>
+    </div>
+
+    <div class="email-set-label">② Alert when a new unregistered material is found</div>
+    <div class="email-mock">
+      <div class="email-topbar email-alert-topbar">
+        <div class="subject">[PWS재고] ⚠️ BOM 미등록 자재 감지 — 확인 필요</div>
+        <div class="meta">
+          <b>From</b> fns.joliet@gmail.com<br>
+          <b>To</b> hana.oh@fnsusa.com
+        </div>
+      </div>
+      <div class="email-body-wrap">
+        <p>A material appeared in the WMS data that has not been set up in the BOM configuration:</p>
+        <p style="background:#fff8e1; padding:8px 12px; border-left:3px solid #f5a623; font-family:monospace; font-size:13px;">
+          MAT-XX-999 — NEW COMPONENT (Owner: PWS)
+        </p>
+        <p>This material was excluded from today's days-of-supply calculation.<br>
+        Once added to the BOM file, it will be included automatically on the next run.</p>
+      </div>
+    </div>
+
+  </div>
+  </details>
+
+</div>
+</details>
+
+<footer>Questions or issues? Contact your administrator.</footer>
+</div>
+</body>
+</html>

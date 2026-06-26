@@ -1,0 +1,444 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IB Data Downloader - 사용 가이드</title>
+<base target="_top">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    background: #f5f7fa; color: #2c3e50; line-height: 1.6;
+  }
+  .container { max-width: 900px; margin: 0 auto; padding: 32px 20px 60px; }
+  header {
+    text-align: center; padding: 40px 20px 32px;
+    background: linear-gradient(135deg, #1F0A3C 0%, #3b1a6e 100%);
+    color: white; border-radius: 12px; margin-bottom: 32px;
+  }
+  header h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.5px; }
+  header p { font-size: 15px; opacity: 0.9; }
+  .download-btn-wrap { text-align: center; margin: 32px 0; }
+  .download-btn {
+    display: inline-block; padding: 14px 36px; background: #1e88e5; color: white;
+    text-decoration: none; border-radius: 8px; font-size: 16px; font-weight: 600;
+    box-shadow: 0 4px 12px rgba(30,136,229,0.3); transition: all 0.2s;
+  }
+  .download-btn:hover { background: #1565c0; transform: translateY(-1px); }
+  .download-btn .size { font-size: 12px; opacity: 0.85; margin-left: 8px; font-weight: 400; }
+  details {
+    background: white; border-radius: 12px; margin-bottom: 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05); overflow: hidden;
+  }
+  details summary {
+    list-style: none; cursor: pointer; padding: 22px 32px;
+    display: flex; align-items: center; gap: 10px; user-select: none;
+  }
+  details summary::-webkit-details-marker { display: none; }
+  details summary h2 {
+    font-size: 22px; color: #1F0A3C; flex: 1; margin: 0;
+    display: flex; align-items: center; gap: 10px;
+  }
+  details summary .icon { font-size: 24px; }
+  details summary .chevron {
+    font-size: 14px; color: #999; transition: transform 0.2s;
+  }
+  details[open] summary .chevron { transform: rotate(180deg); }
+  details[open] summary { border-bottom: 2px solid #e3eaf2; }
+  .section-body { padding: 24px 32px 28px; }
+  section {
+    background: white; border-radius: 12px; padding: 28px 32px; margin-bottom: 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+  section h2 {
+    font-size: 22px; color: #1F0A3C; margin-bottom: 20px; padding-bottom: 12px;
+    border-bottom: 2px solid #e3eaf2; display: flex; align-items: center; gap: 10px;
+  }
+  section h2 .icon { font-size: 24px; }
+  .step { display: flex; gap: 20px; margin-bottom: 28px; padding-bottom: 28px; border-bottom: 1px dashed #e3eaf2; }
+  .step:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+  .step-num {
+    flex-shrink: 0; width: 36px; height: 36px; background: #1F0A3C; color: white;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 16px;
+  }
+  .step-content { flex: 1; min-width: 0; }
+  .step-content h3 { font-size: 17px; color: #1F0A3C; margin-bottom: 8px; }
+  .step-content p { color: #4a5568; font-size: 14px; margin-bottom: 12px; }
+  .mock { max-width: 100%; height: auto; border-radius: 8px; border: 1px solid #e0e6ed;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-top: 8px; display: block; }
+  .note {
+    background: #fff8e1; border-left: 4px solid #ffa726; padding: 12px 16px;
+    margin-top: 12px; border-radius: 4px; font-size: 13px; color: #6b4f0a;
+  }
+  .note strong { color: #b8780b; }
+  .tip {
+    background: #e8f5e9; border-left: 4px solid #66bb6a; padding: 12px 16px;
+    margin-top: 12px; border-radius: 4px; font-size: 13px; color: #2e5c2e;
+  }
+  .tip strong { color: #1b5e20; }
+  .field-list { list-style: none; margin: 12px 0; }
+  .field-list li { padding: 8px 0; border-bottom: 1px solid #f0f4f8; font-size: 14px; }
+  .field-list li:last-child { border-bottom: none; }
+  .field-list strong { color: #1F0A3C; display: inline-block; min-width: 140px; }
+  code {
+    background: #f4f6f8; padding: 2px 6px; border-radius: 4px;
+    font-family: "Consolas", "Monaco", monospace; font-size: 13px; color: #c2185b;
+  }
+  .result-icon { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 13px; margin-right: 4px; }
+  .result-ok   { background: #e8f5e9; color: #2e7d32; }
+  .result-warn { background: #fff3e0; color: #e65100; }
+  .result-fail { background: #ffebee; color: #c62828; }
+  footer { text-align: center; margin-top: 40px; color: #8a94a6; font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>📦 NERP IB Data Downloader</h1>
+  <p>NERP Move Pallet Stock 데이터를 자동으로 다운로드하고 WMS와 비교</p>
+</header>
+
+<div class="download-btn-wrap">
+  <a href="https://fnsul.sharepoint.com/:f:/s/FNSChicagoHub/IgAGWMrTwrU1RYPIXrpYaSlUAfX24PeWMiHDe9rVZiBosiM?e=pXUvau" class="download-btn" target="_blank">
+    💾 다운로드 (SharePoint)
+    <span class="size">NERP IB Data Downloader.zip</span>
+  </a>
+</div>
+
+<!-- 설치 가이드 -->
+<details>
+<summary><h2><span class="icon">⬇️</span> 설치 가이드 (최초 1회)</h2><span class="chevron">▼</span></summary>
+<div class="section-body">
+
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-content">
+      <h3>위 다운로드 버튼 클릭</h3>
+      <p>위쪽 파란 <strong>다운로드 버튼</strong>을 누르면 회사 SharePoint 페이지로 이동합니다.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-content">
+      <h3>회사 계정으로 로그인</h3>
+      <p>FNS 회사 계정(이메일)으로 로그인하세요. 이미 로그인되어 있으면 이 단계는 건너뜁니다.</p>
+
+<svg class="mock" viewBox="0 0 760 440" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="FNS 로그인 화면">
+  <rect width="760" height="440" fill="#f3f4f6"/>
+  <rect x="230" y="70" width="300" height="300" rx="6" fill="#ffffff" stroke="#e3e7ec"/>
+  <g transform="translate(258,104)">
+    <rect x="0" y="0" width="11" height="11" fill="#f25022"/>
+    <rect x="13" y="0" width="11" height="11" fill="#7fba00"/>
+    <rect x="0" y="13" width="11" height="11" fill="#00a4ef"/>
+    <rect x="13" y="13" width="11" height="11" fill="#ffb900"/>
+    <text x="32" y="20" font-family="Segoe UI, sans-serif" font-size="13" fill="#5e5e5e">Microsoft</text>
+  </g>
+  <text x="258" y="168" font-family="Segoe UI, sans-serif" font-size="21" font-weight="600" fill="#1b1b1b">로그인</text>
+  <line x1="258" y1="206" x2="502" y2="206" stroke="#d9d9d9"/>
+  <text x="258" y="200" font-family="Segoe UI, sans-serif" font-size="14" fill="#a8a8a8">name@fnsul.com</text>
+  <text x="258" y="250" font-family="Segoe UI, sans-serif" font-size="12" fill="#5e5e5e">계정이 없으신가요? 계정을 만드세요.</text>
+  <rect x="408" y="286" width="94" height="34" fill="#0067b8"/>
+  <text x="455" y="308" font-family="Segoe UI, sans-serif" font-size="14" fill="#ffffff" text-anchor="middle">다음</text>
+  <text x="380" y="408" font-family="Segoe UI, sans-serif" font-size="12" fill="#9aa0a6" text-anchor="middle">FNS 회사 계정(이메일)으로 로그인</text>
+</svg>
+
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-content">
+      <h3>다운로드 진행</h3>
+      <p>SharePoint에서 좌측 상단 다운로드 버튼을 클릭하여 다운로드합니다.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">4</div>
+    <div class="step-content">
+      <h3>압축 해제</h3>
+      <p>다운로드된 <code>IB Data Downloader.zip</code> 파일을 우클릭 → <strong>"압축 풀기"</strong> 후 <code>IB Data Downloader</code> 폴더 안의 <code>IB Data Downloader.exe</code>를 실행합니다.</p>
+      <div class="note">
+        <strong>⚠️ 중요:</strong> 압축을 풀면 <code>IB Data Downloader</code> 폴더가 생성됩니다. 폴더 안에 <code>_internal</code> 폴더와 <code>.exe</code> 파일이 함께 있어야 합니다. <strong>exe 파일 단독으로 복사하면 실행되지 않습니다.</strong>
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">5</div>
+    <div class="step-content">
+      <h3>처음 실행 시 Windows 보안 경고</h3>
+      <p>EXE를 더블클릭하면 처음 한 번은 아래와 같은 경고가 뜹니다. 이건 정상이며, 코드 서명 인증서가 없는 EXE에 항상 나타납니다.</p>
+
+<svg class="mock" viewBox="0 0 640 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Windows Defender 경고">
+  <rect width="640" height="360" fill="#eef0f3"/>
+  <rect x="90" y="46" width="460" height="268" rx="4" fill="#ffffff" stroke="#cfd4da"/>
+  <rect x="90" y="46" width="460" height="60" fill="#0b3d91"/>
+  <text x="116" y="76" font-family="Segoe UI, sans-serif" font-size="18" font-weight="600" fill="#ffffff">Windows protected your PC</text>
+  <text x="116" y="96" font-family="Segoe UI, sans-serif" font-size="11" fill="#cdd9ef">Microsoft Defender SmartScreen</text>
+  <text x="116" y="146" font-family="Segoe UI, sans-serif" font-size="13" fill="#333">Microsoft Defender SmartScreen prevented an unrecognized</text>
+  <text x="116" y="166" font-family="Segoe UI, sans-serif" font-size="13" fill="#333">app from starting. Running this app might put your PC at risk.</text>
+  <rect x="115" y="196" width="74" height="22" fill="none" stroke="#e53935" stroke-width="2.5" rx="2"/>
+  <text x="120" y="212" font-family="Segoe UI, sans-serif" font-size="13" fill="#0067b8" font-weight="600">More info</text>
+  <rect x="438" y="262" width="92" height="32" fill="#e1e1e1" stroke="#bdbdbd"/>
+  <text x="484" y="283" font-family="Segoe UI, sans-serif" font-size="13" fill="#333" text-anchor="middle">Don't run</text>
+</svg>
+
+      <p style="margin-top:12px;"><strong>"More info"</strong>를 클릭하면 <strong>"Run anyway"</strong> 버튼이 나타납니다. 이걸 누르면 실행됩니다.</p>
+
+<svg class="mock" viewBox="0 0 640 380" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Windows Defender Run anyway">
+  <rect width="640" height="380" fill="#eef0f3"/>
+  <rect x="90" y="36" width="460" height="300" rx="4" fill="#ffffff" stroke="#cfd4da"/>
+  <rect x="90" y="36" width="460" height="60" fill="#0b3d91"/>
+  <text x="116" y="66" font-family="Segoe UI, sans-serif" font-size="18" font-weight="600" fill="#ffffff">Windows protected your PC</text>
+  <text x="116" y="86" font-family="Segoe UI, sans-serif" font-size="11" fill="#cdd9ef">Microsoft Defender SmartScreen</text>
+  <text x="116" y="134" font-family="Segoe UI, sans-serif" font-size="13" fill="#333">Microsoft Defender SmartScreen prevented an unrecognized</text>
+  <text x="116" y="154" font-family="Segoe UI, sans-serif" font-size="13" fill="#333">app from starting.</text>
+  <text x="116" y="186" font-family="Segoe UI, sans-serif" font-size="12" fill="#666">App:</text>
+  <text x="170" y="186" font-family="Segoe UI, sans-serif" font-size="12" fill="#222">IB Data Downloader.exe</text>
+  <text x="116" y="206" font-family="Segoe UI, sans-serif" font-size="12" fill="#666">Publisher:</text>
+  <text x="186" y="206" font-family="Segoe UI, sans-serif" font-size="12" fill="#222">Unknown publisher</text>
+  <rect x="334" y="284" width="96" height="32" fill="#e1e1e1" stroke="#e53935" stroke-width="2.5"/>
+  <text x="382" y="305" font-family="Segoe UI, sans-serif" font-size="13" fill="#222" text-anchor="middle">Run anyway</text>
+  <rect x="438" y="284" width="92" height="32" fill="#e1e1e1" stroke="#bdbdbd"/>
+  <text x="484" y="305" font-family="Segoe UI, sans-serif" font-size="13" fill="#333" text-anchor="middle">Don't run</text>
+</svg>
+
+      <div class="tip">
+        <strong>💡 한 번만 하면 됩니다:</strong> 처음 실행 후 이 경고가 다시 뜨지 않습니다.
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">6</div>
+    <div class="step-content">
+      <h3>그래도 실행이 막힌다면 (차단 해제)</h3>
+      <p>Windows 스마트 스크린이 더 강하게 막아 <strong>"Run anyway" 버튼이 안 보이거나</strong> 실행이 계속 차단될 때가 있습니다. 이럴 때 파일 자체의 차단을 풀어주면 됩니다.</p>
+      <p><code>IB Data Downloader.exe</code> 우클릭 → <strong>"속성(Properties)"</strong> → 하단 <strong>"차단 해제(Unblock)"</strong> 체크 → <strong>"확인"</strong> 후 다시 실행하세요.</p>
+
+<svg class="mock" viewBox="0 0 620 470" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="파일 차단 해제 (Properties Unblock)">
+  <rect width="620" height="470" fill="#eef0f3"/>
+  <rect x="170" y="26" width="280" height="418" rx="4" fill="#f3f3f3" stroke="#c8ccd2"/>
+  <rect x="170" y="26" width="280" height="34" rx="4" fill="#ffffff" stroke="#e3e7ec"/>
+  <text x="186" y="48" font-family="Segoe UI, sans-serif" font-size="12" fill="#333">IB Data Downloader.exe 속성</text>
+  <text x="430" y="48" font-family="Segoe UI, sans-serif" font-size="13" fill="#777">✕</text>
+  <rect x="182" y="72" width="58" height="22" fill="#ffffff" stroke="#c8ccd2"/>
+  <text x="190" y="87" font-family="Segoe UI, sans-serif" font-size="11" fill="#222">일반</text>
+  <text x="252" y="87" font-family="Segoe UI, sans-serif" font-size="11" fill="#777">보안</text>
+  <text x="300" y="87" font-family="Segoe UI, sans-serif" font-size="11" fill="#777">자세히</text>
+  <rect x="182" y="94" width="256" height="200" fill="#ffffff" stroke="#c8ccd2"/>
+  <rect x="198" y="112" width="26" height="26" rx="3" fill="#dfe7f3" stroke="#9bb4d6"/>
+  <text x="234" y="130" font-family="Segoe UI, sans-serif" font-size="11" fill="#222">IB Data Downloader.exe</text>
+  <line x1="198" y1="150" x2="424" y2="150" stroke="#ececec"/>
+  <text x="198" y="172" font-family="Segoe UI, sans-serif" font-size="11" fill="#888">파일 형식: 응용 프로그램 (.exe)</text>
+  <text x="198" y="192" font-family="Segoe UI, sans-serif" font-size="11" fill="#888">위치: C:\Users\...\Downloads</text>
+  <line x1="198" y1="208" x2="424" y2="208" stroke="#ececec"/>
+  <text x="198" y="232" font-family="Segoe UI, sans-serif" font-size="11" fill="#555">보안:</text>
+  <text x="234" y="232" font-family="Segoe UI, sans-serif" font-size="10.5" fill="#777">이 파일은 다른 컴퓨터에서 가져온 것이며,</text>
+  <text x="234" y="247" font-family="Segoe UI, sans-serif" font-size="10.5" fill="#777">이 컴퓨터를 보호하기 위해 차단되었을 수</text>
+  <text x="234" y="262" font-family="Segoe UI, sans-serif" font-size="10.5" fill="#777">있습니다.</text>
+  <rect x="318" y="270" width="16" height="16" fill="#ffffff" stroke="#0067b8"/>
+  <path d="M321 278 l3 4 l6 -8" stroke="#0067b8" stroke-width="2" fill="none"/>
+  <text x="340" y="283" font-family="Segoe UI, sans-serif" font-size="11.5" fill="#222" font-weight="600">차단 해제(Unblock)</text>
+  <rect x="312" y="266" width="118" height="26" fill="none" stroke="#e53935" stroke-width="2.5" rx="2"/>
+  <rect x="278" y="404" width="50" height="26" fill="#0067b8"/>
+  <text x="303" y="421" font-family="Segoe UI, sans-serif" font-size="11" fill="#ffffff" text-anchor="middle">확인</text>
+  <rect x="334" y="404" width="50" height="26" fill="#e6e6e6" stroke="#bdbdbd"/>
+  <text x="359" y="421" font-family="Segoe UI, sans-serif" font-size="11" fill="#333" text-anchor="middle">취소</text>
+  <rect x="390" y="404" width="50" height="26" fill="#e6e6e6" stroke="#bdbdbd"/>
+  <text x="415" y="421" font-family="Segoe UI, sans-serif" font-size="11" fill="#333" text-anchor="middle">적용</text>
+</svg>
+
+      <div class="note">
+        <strong>"차단 해제" 항목이 안 보이면</strong> 이미 차단이 풀린 상태이거나 처음 경고(5번) 단계에서 해결된 것이므로, 5번의 <strong>More info → Run anyway</strong>로 실행하면 됩니다.
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">7</div>
+    <div class="step-content">
+      <h3>.env 파일 설정</h3>
+      <p><code>NERP IB Data Downloader</code> 폴더 안에 <code>.env</code> 파일이 있습니다. 메모장으로 열어서 NERP 포털 로그인 정보를 입력하세요.</p>
+      <ul class="field-list">
+        <li><strong>NERP_USERID</strong> — NERP 포털 아이디</li>
+        <li><strong>NERP_PASSWORD</strong> — NERP 포털 비밀번호</li>
+        <li><strong>WAREHOUSE_NUMBER</strong> — 창고 코드 (기본값: <code>CHW1</code>)</li>
+      </ul>
+      <div class="note">
+        <strong>⚠️ .env 파일이 없으면 실행되지 않습니다.</strong> 배포 담당자에게 문의하세요.
+      </div>
+    </div>
+  </div>
+</div></details>
+
+<!-- 사용 가이드 -->
+<details>
+<summary><h2><span class="icon">📖</span> 사용 가이드</h2><span class="chevron">▼</span></summary>
+<div class="section-body">
+
+  <p style="margin-bottom: 20px; color: #4a5568; font-size: 14px;">
+    EXE를 실행하면 아래와 같은 창이 열립니다. Move Pallet Stock 데이터를 자동으로 다운로드하고, WMS와 팔렛·수량을 비교합니다.
+  </p>
+
+  <!-- App UI mockup -->
+<svg class="mock" viewBox="0 0 900 520" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="IB Data Downloader 실행 화면" style="max-width:700px; margin: 0 auto 24px;">
+  <rect width="900" height="520" fill="#1F0A3C"/>
+  <rect x="20" y="20" width="860" height="480" rx="14" fill="#ffffff"/>
+  <text x="450" y="62" font-family="Segoe UI, sans-serif" font-size="18" font-weight="700" fill="#212529" text-anchor="middle">IB Data Downloader</text>
+  <rect x="40" y="80" width="280" height="62" rx="10" fill="#fff" stroke="#E9ECEF" stroke-width="1.5"/>
+  <text x="52" y="100" font-family="Segoe UI, sans-serif" font-size="11" fill="#6C757D">WMS Username</text>
+  <rect x="52" y="106" width="256" height="26" rx="6" fill="#fff" stroke="#DEE2E6" stroke-width="1.5"/>
+  <text x="62" y="124" font-family="Segoe UI, sans-serif" font-size="12" fill="#aaa">Enter username</text>
+  <rect x="40" y="152" width="280" height="62" rx="10" fill="#fff" stroke="#E9ECEF" stroke-width="1.5"/>
+  <text x="52" y="172" font-family="Segoe UI, sans-serif" font-size="11" fill="#6C757D">Password</text>
+  <rect x="52" y="178" width="256" height="26" rx="6" fill="#fff" stroke="#DEE2E6" stroke-width="1.5"/>
+  <text x="62" y="196" font-family="Segoe UI, sans-serif" font-size="12" fill="#aaa">Enter password</text>
+  <rect x="40" y="224" width="280" height="86" rx="10" fill="#fff" stroke="#E9ECEF" stroke-width="1.5"/>
+  <text x="52" y="244" font-family="Segoe UI, sans-serif" font-size="11" fill="#6C757D">HBL Number (Optional)</text>
+  <rect x="52" y="250" width="256" height="48" rx="6" fill="#fff" stroke="#DEE2E6" stroke-width="1.5"/>
+  <text x="62" y="272" font-family="Segoe UI, sans-serif" font-size="11" fill="#aaa">쉼표 · 줄바꿈 ○</text>
+  <rect x="40" y="322" width="280" height="40" rx="8" fill="#2196F3"/>
+  <text x="180" y="347" font-family="Segoe UI, sans-serif" font-size="14" font-weight="700" fill="#ffffff" text-anchor="middle">Run Script</text>
+  <rect x="40" y="374" width="280" height="80" rx="10" fill="#fff" stroke="#E9ECEF" stroke-width="1.5"/>
+  <rect x="52" y="388" width="256" height="8" rx="4" fill="#EEEEEE"/>
+  <rect x="52" y="388" width="80" height="8" rx="4" fill="#2196F3"/>
+  <text x="180" y="414" font-family="Segoe UI, sans-serif" font-size="15" font-weight="700" fill="#2196F3" text-anchor="middle">30%</text>
+  <text x="180" y="434" font-family="Segoe UI, sans-serif" font-size="11" fill="#6C757D" text-anchor="middle">WMS 비교 중... 2/5</text>
+  <rect x="340" y="80" width="520" height="400" rx="10" fill="#fff" stroke="#E9ECEF" stroke-width="1.5"/>
+  <text x="356" y="102" font-family="Segoe UI, sans-serif" font-size="13" font-weight="600" fill="#212529">Console Output</text>
+  <rect x="356" y="112" width="488" height="352" rx="6" fill="#F8F9FA" stroke="#E9ECEF" stroke-width="1.5"/>
+  <text x="366" y="135" font-family="Consolas, monospace" font-size="11" fill="#198754">[OK] NERP 다운로드 완료</text>
+  <text x="366" y="155" font-family="Consolas, monospace" font-size="11" fill="#0D6EFD">[INFO] WMS 비교 중... (2/5)  HANAL123456</text>
+  <text x="366" y="175" font-family="Consolas, monospace" font-size="11" fill="#198754">[OK] 검색 중... (1/5)  HANAL111111</text>
+  <rect x="356" y="188" width="488" height="22" rx="0" fill="#1F0A3C"/>
+  <text x="366" y="203" font-family="Consolas, monospace" font-size="10" fill="#fff">HBL</text>
+  <text x="476" y="203" font-family="Consolas, monospace" font-size="10" fill="#fff">ITEM CODE</text>
+  <text x="626" y="203" font-family="Consolas, monospace" font-size="10" fill="#fff">PLT</text>
+  <text x="666" y="203" font-family="Consolas, monospace" font-size="10" fill="#fff">Total Qty</text>
+  <rect x="356" y="210" width="488" height="20" fill="#F5F0FF"/>
+  <text x="366" y="224" font-family="Consolas, monospace" font-size="10" fill="#212529">HANAL111111</text>
+  <text x="476" y="224" font-family="Consolas, monospace" font-size="10" fill="#0D6EFD">LGE-BT-001</text>
+  <text x="626" y="224" font-family="Consolas, monospace" font-size="10" fill="#212529">12</text>
+  <text x="666" y="224" font-family="Consolas, monospace" font-size="10" fill="#212529">480</text>
+  <rect x="356" y="230" width="488" height="20" fill="#fff"/>
+  <text x="366" y="244" font-family="Consolas, monospace" font-size="10" fill="#212529">HANAL222222</text>
+  <text x="476" y="244" font-family="Consolas, monospace" font-size="10" fill="#0D6EFD">LGE-BT-002</text>
+  <text x="626" y="244" font-family="Consolas, monospace" font-size="10" fill="#212529">8</text>
+  <text x="666" y="244" font-family="Consolas, monospace" font-size="10" fill="#212529">320</text>
+  <text x="366" y="276" font-family="Consolas, monospace" font-size="11" fill="#198754">[OK]  HANAL111111</text>
+  <text x="366" y="296" font-family="Consolas, monospace" font-size="11" fill="#DC3545">[ERROR] HANAL222222</text>
+  <text x="376" y="312" font-family="Consolas, monospace" font-size="10" fill="#DC3545">PAL-0042  수량 불일치</text>
+</svg>
+
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-content">
+      <h3>WMS 아이디 / 비밀번호 입력</h3>
+      <p><strong>Username · Password</strong>에는 본인의 <strong>WMS(wms.itsscm.com) 로그인 아이디와 비밀번호</strong>를 입력합니다.</p>
+      <div class="tip">
+        <strong>💡 Save ID/PW:</strong> 체크해두면 아이디·비밀번호가 PC에 저장되어 다음 실행 때 자동으로 채워집니다.
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-content">
+      <h3>HBL Number 입력 (선택사항)</h3>
+      <p>특정 HBL만 비교하고 싶을 때 사용합니다. <strong>쉼표(,) 또는 줄바꿈</strong>으로 여러 개 입력 가능합니다.</p>
+      <ul class="field-list">
+        <li><strong>비워두면</strong> — NERP에 있는 오늘자 전체 HBL을 비교합니다</li>
+        <li><strong>입력하면</strong> — 입력한 HBL에 해당하는 데이터만 비교합니다</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-content">
+      <h3>Run Script 클릭</h3>
+      <p><strong>"Run Script"</strong> 버튼을 누르면 자동으로 아래 순서로 진행됩니다.</p>
+      <ul class="field-list">
+        <li><strong>1단계 · 다운로드</strong> — 포털에 자동 로그인 후, Move Pallet Stock 화면에서 오늘 날짜로 조회·엑셀 다운로드 (백그라운드, 화면 안 보임)</li>
+        <li><strong>2단계 · WMS 비교</strong> — WMS에 로그인 후 HBL별로 팔렛 ID·아이템 코드·수량·Plant를 비교 (백그라운드)</li>
+        <li><strong>3단계 · 결과 표시</strong> — 비교 완료 후 콘솔에 데이터 요약표와 비교 결과가 자동으로 표시됩니다</li>
+      </ul>
+      <div class="note">
+        작업 중에는 Chrome 창이 <strong>화면 밖 백그라운드</strong>로 실행됩니다. 창이 안 보여도 정상입니다.
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">4</div>
+    <div class="step-content">
+      <h3>결과 확인 — NERP 데이터 요약표</h3>
+      <p>비교가 끝나면 콘솔 상단에 NERP 데이터 요약표가 먼저 표시됩니다.</p>
+      <ul class="field-list">
+        <li><strong>HBL</strong> — 선하증권 번호</li>
+        <li><strong>ITEM CODE</strong> — 자재 코드 (HBL당 여러 개일 수 있음)</li>
+        <li><strong>PLT 수</strong> — 팔렛 총 개수</li>
+        <li><strong>Total Qty</strong> — 전체 수량 합계</li>
+        <li><strong>Storage Bin</strong> — 창고 보관 위치</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">5</div>
+    <div class="step-content">
+      <h3>결과 확인 — NERP↔WMS 비교 결과</h3>
+      <p>요약표 아래에 HBL별 비교 결과가 표시됩니다.</p>
+      <ul class="field-list">
+        <li><span class="result-icon result-ok">[일치]</span> NERP와 WMS 데이터가 완전히 일치</li>
+        <li><span class="result-icon result-warn">[확인필요]</span> WMS에서 검색 불가 (이미 오더 컨펌된 건 등)</li>
+        <li><span class="result-icon result-fail">[불일치]</span> 팔렛 ID · 아이템 코드 · 수량 · Plant 중 하나 이상 다름</li>
+      </ul>
+      <div class="note">
+        <strong>[불일치]</strong>가 나오면 세부 내용(어떤 팔렛, 어떤 항목이 다른지)이 아래에 추가로 표시됩니다.
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">6</div>
+    <div class="step-content">
+      <h3>IB Order 결과 확인 팝업</h3>
+      <p>모든 HBL이 일치하고 IB Order ID가 존재하면, WMS에서 자동으로 IB Order 검색까지 완료한 후 아래 팝업이 뜹니다.</p>
+      <ul class="field-list">
+        <li><span class="result-icon result-ok">예</span> 숨겨져 있던 Chrome 창이 전체화면으로 나타나고, 방금 검색한 IB Order 결과를 WMS에서 바로 확인할 수 있습니다</li>
+        <li><span class="result-icon result-fail">아니오</span> Chrome 브라우저를 종료합니다</li>
+      </ul>
+      <div class="tip">
+        <strong>💡</strong> "예"를 선택하면 WMS 브라우저가 열립니다. 확인 후 브라우저를 직접 닫으면 프로그램이 완전히 종료됩니다.
+      </div>
+    </div>
+  </div>
+</div></details>
+
+<!-- 팁 -->
+<details>
+<summary><h2><span class="icon">💡</span> 알아두면 편한 것들</h2><span class="chevron">▼</span></summary>
+<div class="section-body">
+  <ul class="field-list">
+    <li><strong>NERP 로그인 느릴 때</strong> — .env 파일의 아이디·비밀번호가 맞는지 확인하세요. 포털 로딩이 느린 경우 자동으로 기다립니다.</li>
+    <li><strong>HBL이 NERP에 없다는 메시지</strong> — 오늘 날짜에 GR 처리된 건이 아닌 경우 NERP 조회 결과에 없을 수 있습니다.</li>
+    <li><strong>[확인필요] 메시지</strong> — 해당 HBL이 WMS에서 이미 오더 컨펌(Order Confirm) 처리된 건일 가능성이 높습니다. WMS에서 직접 확인하세요.</li>
+    <li><strong>비교 결과가 안 나올 때</strong> — WMS 아이디·비밀번호를 확인하세요. 로그인 실패 시 콘솔에 오류 메시지가 표시됩니다.</li>
+  </ul>
+</div></details>
+
+<footer>
+  문의/오류 보고: 담당자에게 연락주세요
+</footer>
+
+</div>
+</body>
+</html>

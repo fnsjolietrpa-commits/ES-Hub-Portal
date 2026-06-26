@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FG Report Downloader - User Guide</title>
+<base target="_top">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    background: #f0f2f7; color: #1e2535; line-height: 1.6;
+  }
+  .container { max-width: 880px; margin: 0 auto; padding: 32px 20px 64px; }
+
+  /* ── Header ── */
+  header {
+    text-align: center; padding: 40px 20px 32px;
+    background: linear-gradient(135deg, #0a3d1f 0%, #1a6e3b 100%);
+    color: white; border-radius: 12px; margin-bottom: 32px;
+  }
+  header h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.5px; }
+  header p { font-size: 15px; opacity: 0.9; }
+
+  /* ── Download button ── */
+  .dl-wrap { text-align: center; margin: 24px 0 32px; }
+  .dl-btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 14px 34px; background: #1655c0; color: #fff;
+    text-decoration: none; border-radius: 9px; font-size: 15px; font-weight: 600;
+    box-shadow: 0 4px 16px rgba(22,85,192,0.32); transition: background 0.18s, transform 0.15s;
+  }
+  .dl-btn:hover { background: #1145a6; transform: translateY(-1px); }
+  .dl-btn .meta { font-size: 12px; font-weight: 400; opacity: 0.8; }
+
+  /* ── Outer language accordion ── */
+  .lang-block {
+    background: #fff; border-radius: 14px; margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow: hidden;
+  }
+  .lang-block > summary {
+    list-style: none; cursor: pointer; padding: 18px 28px;
+    display: flex; align-items: center; gap: 12px; user-select: none;
+    border-left: 5px solid transparent;
+  }
+  .lang-block > summary::-webkit-details-marker { display: none; }
+  .lang-block.ko > summary { border-left-color: #1655c0; }
+  .lang-block.en > summary { border-left-color: #2d8a4e; }
+  .lang-block > summary h2 {
+    font-size: 18px; font-weight: 700; color: #1A0A36;
+    flex: 1; margin: 0; display: flex; align-items: center; gap: 10px;
+  }
+  .lang-block > summary .flag { font-size: 22px; }
+  .lang-block > summary .chev { font-size: 12px; color: #a0aab8; transition: transform 0.2s; }
+  .lang-block[open] > summary .chev { transform: rotate(180deg); }
+  .lang-block[open] > summary { border-bottom: 1.5px solid #e6eaf2; }
+  .lang-body { padding: 20px 24px 24px; background: #f7f8fc; }
+
+  /* ── Inner section accordion ── */
+  .section-wrap {
+    background: #fff; border-radius: 10px; margin-bottom: 14px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05); overflow: hidden;
+  }
+  .section-wrap > summary {
+    list-style: none; cursor: pointer; padding: 16px 24px;
+    display: flex; align-items: center; gap: 10px; user-select: none;
+  }
+  .section-wrap > summary::-webkit-details-marker { display: none; }
+  .section-wrap > summary h3 {
+    font-size: 15px; font-weight: 700; color: #1A0A36;
+    flex: 1; margin: 0; display: flex; align-items: center; gap: 8px;
+  }
+  .section-wrap > summary .ico { font-size: 18px; }
+  .section-wrap > summary .chev { font-size: 11px; color: #a0aab8; transition: transform 0.2s; }
+  .section-wrap[open] > summary .chev { transform: rotate(180deg); }
+  .section-wrap[open] > summary { border-bottom: 1px solid #e6eaf2; }
+  .section-body { padding: 20px 24px 24px; }
+
+  /* ── Steps ── */
+  .step { display: flex; gap: 16px; margin-bottom: 22px; padding-bottom: 22px; border-bottom: 1px dashed #e3e8f0; }
+  .step:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+  .step-num {
+    flex-shrink: 0; width: 32px; height: 32px; background: #1A0A36; color: #fff;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 13px; margin-top: 1px;
+  }
+  .step-content { flex: 1; min-width: 0; }
+  .step-content h4 { font-size: 14px; font-weight: 700; color: #1A0A36; margin-bottom: 5px; }
+  .step-content p { font-size: 13.5px; color: #4a5568; margin-bottom: 8px; }
+  .step-content p:last-child { margin-bottom: 0; }
+
+  /* ── Mock SVGs ── */
+  .mock {
+    max-width: 100%; height: auto; border-radius: 8px; border: 1px solid #dde3ed;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07); margin-top: 10px; display: block;
+  }
+
+  /* ── Callouts ── */
+  .note {
+    background: #fff8e1; border-left: 3px solid #f5a623;
+    padding: 9px 13px; margin-top: 8px; border-radius: 0 6px 6px 0;
+    font-size: 13px; color: #6b4a08;
+  }
+  .note strong { color: #a36804; }
+  .tip {
+    background: #edf7ed; border-left: 3px solid #52b152;
+    padding: 9px 13px; margin-top: 8px; border-radius: 0 6px 6px 0;
+    font-size: 13px; color: #275427;
+  }
+  .tip strong { color: #1d6b1d; }
+
+  /* ── Field list ── */
+  .field-list { list-style: none; margin: 8px 0; }
+  .field-list li {
+    padding: 7px 0; border-bottom: 1px solid #eff2f8;
+    font-size: 13.5px; color: #4a5568; display: flex; gap: 10px; align-items: baseline;
+  }
+  .field-list li:last-child { border-bottom: none; }
+  .field-list .key {
+    color: #1A0A36; font-weight: 600; font-family: "Consolas","Monaco",monospace;
+    font-size: 12.5px; min-width: 100px; flex-shrink: 0;
+  }
+
+  code {
+    background: #f2f4f8; padding: 2px 6px; border-radius: 4px;
+    font-family: "Consolas","Monaco",monospace; font-size: 12px; color: #b5185c;
+  }
+
+  /* ── Output cards ── */
+  .output-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+  .output-card {
+    background: #f7f9fd; border: 1px solid #dde4f0; border-radius: 8px; padding: 12px 14px;
+  }
+  .output-card .filename {
+    font-family: "Consolas","Monaco",monospace; font-size: 11.5px; color: #1655c0;
+    font-weight: 600; margin-bottom: 6px; word-break: break-all;
+  }
+  .output-card .sheet-label {
+    font-size: 10px; letter-spacing: 1px; text-transform: uppercase;
+    color: #8896ad; margin: 6px 0 3px;
+  }
+  .output-card ul { list-style: none; padding: 0; }
+  .output-card ul li { font-size: 12.5px; color: #4a5568; padding: 2px 0; }
+  .output-card ul li::before { content: "·  "; color: #a0aab8; }
+
+  /* ── Console mockup ── */
+  .console {
+    background: #1a1d27; border-radius: 8px; padding: 14px 16px; margin-top: 10px;
+    font-family: "Consolas","Monaco",monospace; font-size: 12px; line-height: 1.7;
+    overflow-x: auto;
+  }
+  .console .c-head { color: #6ee7b7; }
+  .console .c-info { color: #93c5fd; }
+  .console .c-ok   { color: #86efac; }
+  .console .c-dim  { color: #6b7a99; }
+  .console .c-path { color: #c4b5fd; }
+
+  footer { text-align: center; margin-top: 36px; color: #8a94a6; font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>📊 FG Report Downloader</h1>
+  <p>WMS에서 FG 재고 및 출고 리포트를 자동 다운로드하고 정리된 Excel 파일로 저장합니다.</p>
+</header>
+
+<div class="dl-wrap">
+  <a href="https://fnsul.sharepoint.com/:f:/s/FNSChicagoHub/IgDVgDbtAWofRJiGtTHyqlwaAfxPHuv8Pkr9mRtrdAHBmk4?e=z9kQzb"
+     class="dl-btn" target="_blank">
+    &#128190; 다운로드 / Download (SharePoint)
+    <span class="meta">FG Report Downloader.zip</span>
+  </a>
+</div>
+
+
+<!-- ═══════════════════════════
+     KOREAN VERSION
+     ═══════════════════════════ -->
+<details class="lang-block ko">
+<summary>
+  <span class="flag">🇰🇷</span>
+  <h2>한국어 가이드</h2>
+  <span class="chev">▼</span>
+</summary>
+<div class="lang-body">
+
+  <!-- 설치 -->
+  <details class="section-wrap">
+  <summary>
+    <h3><span class="ico">⬇️</span> 설치 (최초 1회)</h3>
+    <span class="chev">▼</span>
+  </summary>
+  <div class="section-body">
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h4>위 다운로드 버튼 클릭</h4>
+        <p>파란 버튼을 누르면 회사 SharePoint 페이지로 이동합니다.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h4>회사 계정으로 로그인</h4>
+        <p>FNS 회사 이메일로 로그인하세요. 이미 로그인되어 있으면 자동으로 건너뜁니다.</p>
+
+<svg class="mock" viewBox="0 0 720 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Microsoft 로그인 화면">
+  <rect width="720" height="360" fill="#f3f4f6"/>
+  <rect x="210" y="50" width="300" height="260" rx="6" fill="#fff" stroke="#e0e4ea"/>
+  <g transform="translate(238,84)">
+    <rect x="0"  y="0"  width="11" height="11" fill="#f25022"/>
+    <rect x="13" y="0"  width="11" height="11" fill="#7fba00"/>
+    <rect x="0"  y="13" width="11" height="11" fill="#00a4ef"/>
+    <rect x="13" y="13" width="11" height="11" fill="#ffb900"/>
+    <text x="32" y="20" font-family="Segoe UI,sans-serif" font-size="13" fill="#5e5e5e">Microsoft</text>
+  </g>
+  <text x="238" y="144" font-family="Segoe UI,sans-serif" font-size="20" font-weight="600" fill="#1b1b1b">로그인</text>
+  <rect x="238" y="158" width="244" height="34" rx="2" fill="#fff" stroke="#8a8886" stroke-width="1.5"/>
+  <text x="248" y="180" font-family="Segoe UI,sans-serif" font-size="13" fill="#aaa">name@fnsul.com</text>
+  <rect x="390" y="228" width="92" height="32" rx="2" fill="#0067b8"/>
+  <text x="436" y="249" font-family="Segoe UI,sans-serif" font-size="13" fill="#fff" text-anchor="middle">다음</text>
+  <text x="360" y="330" font-family="Segoe UI,sans-serif" font-size="12" fill="#9aa0a6" text-anchor="middle">FNS 회사 계정(이메일)으로 로그인</text>
+</svg>
+
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h4>파일 다운로드</h4>
+        <p>SharePoint 페이지 좌측 상단 <strong>다운로드</strong> 버튼을 클릭하여 zip 파일을 받습니다.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <h4>압축 해제</h4>
+        <p><code>FG Report Downloader.zip</code> 우클릭 → <strong>"압축 풀기"</strong> → 생성된 <code>FG Report Downloader</code> 폴더 안의 <code>FG Report Downloader.exe</code>를 실행합니다.</p>
+        <div class="note">
+          <strong>⚠️ 중요:</strong> 폴더 안에 <code>_internal</code> 폴더와 <code>.exe</code> 파일이 <strong>함께</strong> 있어야 합니다. exe 파일만 단독으로 복사하면 실행되지 않습니다.
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-content">
+        <h4>처음 실행 시 Windows 보안 경고</h4>
+        <p>처음 실행하면 아래와 같은 파란 경고 화면이 뜰 수 있습니다. 코드 서명 인증서가 없는 EXE에는 항상 나타나며 정상입니다.</p>
+
+<svg class="mock" viewBox="0 0 620 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Windows Defender 경고">
+  <rect width="620" height="320" fill="#eef0f3"/>
+  <rect x="80" y="30" width="460" height="260" rx="4" fill="#fff" stroke="#cfd4da"/>
+  <rect x="80" y="30" width="460" height="56" fill="#0b3d91"/>
+  <text x="106" y="56" font-family="Segoe UI,sans-serif" font-size="16" font-weight="600" fill="#fff">Windows protected your PC</text>
+  <text x="106" y="74" font-family="Segoe UI,sans-serif" font-size="11" fill="#cdd9ef">Microsoft Defender SmartScreen</text>
+  <text x="106" y="118" font-family="Segoe UI,sans-serif" font-size="13" fill="#333">Microsoft Defender SmartScreen prevented an unrecognized</text>
+  <text x="106" y="138" font-family="Segoe UI,sans-serif" font-size="13" fill="#333">app from starting. Running this app might put your PC at risk.</text>
+  <rect x="105" y="168" width="68" height="20" fill="none" stroke="#e53935" stroke-width="2" rx="2"/>
+  <text x="110" y="183" font-family="Segoe UI,sans-serif" font-size="13" fill="#0067b8" font-weight="600">More info</text>
+  <rect x="428" y="242" width="92" height="28" fill="#e1e1e1" stroke="#bdbdbd"/>
+  <text x="474" y="261" font-family="Segoe UI,sans-serif" font-size="13" fill="#333" text-anchor="middle">Don't run</text>
+</svg>
+
+        <p style="margin-top:10px;"><strong>"More info"</strong>를 클릭하면 <strong>"Run anyway"</strong> 버튼이 나타납니다. 클릭하면 실행됩니다.</p>
+
+<svg class="mock" viewBox="0 0 620 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Run anyway 버튼">
+  <rect width="620" height="320" fill="#eef0f3"/>
+  <rect x="80" y="20" width="460" height="280" rx="4" fill="#fff" stroke="#cfd4da"/>
+  <rect x="80" y="20" width="460" height="56" fill="#0b3d91"/>
+  <text x="106" y="46" font-family="Segoe UI,sans-serif" font-size="16" font-weight="600" fill="#fff">Windows protected your PC</text>
+  <text x="106" y="64" font-family="Segoe UI,sans-serif" font-size="11" fill="#cdd9ef">Microsoft Defender SmartScreen</text>
+  <text x="106" y="108" font-family="Segoe UI,sans-serif" font-size="12" fill="#666">App:</text>
+  <text x="154" y="108" font-family="Segoe UI,sans-serif" font-size="12" fill="#222">FG Report Downloader.exe</text>
+  <text x="106" y="130" font-family="Segoe UI,sans-serif" font-size="12" fill="#666">Publisher:</text>
+  <text x="178" y="130" font-family="Segoe UI,sans-serif" font-size="12" fill="#222">Unknown publisher</text>
+  <rect x="320" y="242" width="98" height="30" fill="#e1e1e1" stroke="#e53935" stroke-width="2.5"/>
+  <text x="369" y="262" font-family="Segoe UI,sans-serif" font-size="13" fill="#222" text-anchor="middle">Run anyway</text>
+  <rect x="426" y="242" width="92" height="30" fill="#e1e1e1" stroke="#bdbdbd"/>
+  <text x="472" y="262" font-family="Segoe UI,sans-serif" font-size="13" fill="#333" text-anchor="middle">Don't run</text>
+</svg>
+
+        <div class="tip"><strong>💡 최초 1회만:</strong> 한 번 실행 후 이 경고는 다시 뜨지 않습니다.</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">6</div>
+      <div class="step-content">
+        <h4>그래도 막힌다면 — 파일 차단 해제</h4>
+        <p><strong>"Run anyway" 버튼이 보이지 않거나</strong> 계속 차단될 경우, 파일 속성에서 직접 차단을 해제하세요.</p>
+        <p><code>FG Report Downloader.exe</code> 우클릭 → <strong>속성(Properties)</strong> → 하단 <strong>"차단 해제(Unblock)"</strong> 체크 → <strong>확인</strong> 후 다시 실행.</p>
+
+<svg class="mock" viewBox="0 0 600 430" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="파일 차단 해제">
+  <rect width="600" height="430" fill="#eef0f3"/>
+  <rect x="160" y="20" width="280" height="390" rx="4" fill="#f3f3f3" stroke="#c8ccd2"/>
+  <rect x="160" y="20" width="280" height="34" rx="4" fill="#fff" stroke="#e3e7ec"/>
+  <text x="176" y="42" font-family="Segoe UI,sans-serif" font-size="12" fill="#333">FG Report Downloader.exe 속성</text>
+  <text x="424" y="42" font-family="Segoe UI,sans-serif" font-size="13" fill="#777">✕</text>
+  <rect x="174" y="66" width="56" height="22" fill="#fff" stroke="#c8ccd2"/>
+  <text x="182" y="81" font-family="Segoe UI,sans-serif" font-size="11" fill="#222">일반</text>
+  <rect x="174" y="88" width="252" height="184" fill="#fff" stroke="#c8ccd2"/>
+  <text x="190" y="150" font-family="Segoe UI,sans-serif" font-size="11" fill="#888">파일 형식: 응용 프로그램 (.exe)</text>
+  <text x="190" y="170" font-family="Segoe UI,sans-serif" font-size="11" fill="#888">위치: C:\Users\...\Downloads</text>
+  <line x1="190" y1="186" x2="412" y2="186" stroke="#ececec"/>
+  <text x="190" y="210" font-family="Segoe UI,sans-serif" font-size="11" fill="#555">보안:</text>
+  <text x="228" y="210" font-family="Segoe UI,sans-serif" font-size="10.5" fill="#777">이 파일은 다른 컴퓨터에서 가져온 것이며,</text>
+  <text x="228" y="225" font-family="Segoe UI,sans-serif" font-size="10.5" fill="#777">이 컴퓨터를 보호하기 위해 차단되었습니다.</text>
+  <rect x="310" y="248" width="16" height="16" fill="#fff" stroke="#0067b8"/>
+  <path d="M313 256 l3 4 l6-8" stroke="#0067b8" stroke-width="2" fill="none"/>
+  <text x="332" y="261" font-family="Segoe UI,sans-serif" font-size="11.5" fill="#222" font-weight="600">차단 해제(Unblock)</text>
+  <rect x="304" y="244" width="118" height="26" fill="none" stroke="#e53935" stroke-width="2" rx="2"/>
+  <rect x="270" y="372" width="50" height="26" fill="#0067b8"/>
+  <text x="295" y="389" font-family="Segoe UI,sans-serif" font-size="11" fill="#fff" text-anchor="middle">확인</text>
+  <rect x="326" y="372" width="50" height="26" fill="#e6e6e6" stroke="#bdbdbd"/>
+  <text x="351" y="389" font-family="Segoe UI,sans-serif" font-size="11" fill="#333" text-anchor="middle">취소</text>
+</svg>
+
+        <div class="note">
+          <strong>"차단 해제" 항목이 없으면</strong> 이미 차단이 풀린 상태입니다. 5번의 <strong>More info → Run anyway</strong>로 실행하세요.
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">7</div>
+      <div class="step-content">
+        <h4>.env 파일 설정</h4>
+        <p><code>FG Report Downloader</code> 폴더 안의 <code>.env</code> 파일을 우클릭 → <strong>다른 앱으로 열기 → 메모장</strong>으로 열어 아래 항목을 입력합니다.</p>
+        <ul class="field-list">
+          <li><span class="key">WMS_ID</span> WMS 로그인 아이디</li>
+          <li><span class="key">WMS_PW</span> WMS 비밀번호</li>
+          <li><span class="key">SAVE_DIR</span> 리포트를 저장할 폴더. <strong>비워두면 다운로드 폴더에 자동 저장.</strong></li>
+        </ul>
+        <div class="tip">
+          <strong>💡 SAVE_DIR 설정법:</strong> 파일 탐색기에서 원하는 폴더를 열고, 상단 주소창을 클릭 → <strong>Ctrl+A</strong> → <strong>Ctrl+C</strong>로 경로를 복사해 <code>SAVE_DIR=</code> 뒤에 붙여넣기.
+        </div>
+        <div class="note">
+          <strong>⚠️ WMS_ID와 WMS_PW가 없으면 실행되지 않습니다.</strong> 담당자에게 문의하세요.
+        </div>
+      </div>
+    </div>
+
+  </div>
+  </details>
+
+  <!-- 사용 안내 -->
+  <details class="section-wrap">
+  <summary>
+    <h3><span class="ico">📖</span> 사용 안내</h3>
+    <span class="chev">▼</span>
+  </summary>
+  <div class="section-body">
+
+    <p style="font-size:13.5px; color:#4a5568; margin-bottom:16px;">
+      <code>FG Report Downloader.exe</code>를 더블클릭하면 검은 콘솔 창이 열리고 자동으로 진행됩니다. 버튼은 없으며, Chrome이 백그라운드에서 실행되므로 브라우저 창은 보이지 않습니다.
+    </p>
+
+    <div class="console">
+      <div class="c-head">=============================================</div>
+      <div class="c-head">  FG Report Downloader</div>
+      <div class="c-head">=============================================</div>
+      <div class="c-dim">Warehouse  : Joliet WH</div>
+      <div class="c-dim">Owner Codes: 1033400,7001534</div>
+      <div class="c-dim">Save folder: C:\Users\...\Downloads\06.25.2026</div>
+      <div>&nbsp;</div>
+      <div class="c-info">[1/6] Logging into WMS...</div>
+      <div class="c-info">[2/6] Navigating to Inventory By Attribute...</div>
+      <div class="c-info">[3/6] Setting search conditions...</div>
+      <div class="c-info">[4/6] Downloading Inventory Excel...</div>
+      <div class="c-ok">  Received: Inventory_By_Attribute_20260625.xlsx</div>
+      <div class="c-info">[5/6] Navigating to Outbound Report...</div>
+      <div class="c-ok">  Received: Outbound_Report_20260625.xlsx</div>
+      <div class="c-info">[6/6] Building pivot files...</div>
+      <div class="c-ok">  Saved: FG_Inventory_20260625143022.xlsx</div>
+      <div class="c-ok">  Saved: FG_Outbound_20260625143022.xlsx</div>
+      <div>&nbsp;</div>
+      <div class="c-ok">Done!</div>
+      <div class="c-path">  C:\Users\...\Downloads\06.25.2026\FG_Inventory_20260625143022.xlsx</div>
+      <div class="c-path">  C:\Users\...\Downloads\06.25.2026\FG_Outbound_20260625143022.xlsx</div>
+      <div>&nbsp;</div>
+      <div class="c-dim">Press Enter to close...</div>
+    </div>
+
+    <div class="step" style="margin-top:20px;">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h4>WMS에 자동 로그인 후 두 가지 리포트 다운로드</h4>
+        <ul class="field-list">
+          <li><span class="key">리포트 1</span> Inventory &gt; Inventory &gt; <strong>Inventory By Attribute</strong> — 현재 FG 재고 (아이템·LOT별)</li>
+          <li><span class="key">리포트 2</span> Report &gt; <strong>Outbound Report</strong> — 이번 달 1일부터 오늘까지 출고 내역</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h4>정리된 Excel 파일 2개 저장</h4>
+        <p>오늘 날짜 폴더 안에 저장됩니다 (예: <code>Downloads\06.25.2026\</code>). 각 파일은 <strong>SUMMARY</strong> 탭과 <strong>RAW DATA</strong> 탭으로 구성됩니다.</p>
+        <div class="output-grid">
+          <div class="output-card">
+            <div class="filename">FG_Inventory_[시간].xlsx</div>
+            <div class="sheet-label">SUMMARY 탭</div>
+            <ul>
+              <li>Owner Code</li>
+              <li>Item Code</li>
+              <li>Product Lot</li>
+              <li>Sum of Total QTY</li>
+              <li>Sum of Available QTY</li>
+              <li>Grand Total 행</li>
+            </ul>
+          </div>
+          <div class="output-card">
+            <div class="filename">FG_Outbound_[시간].xlsx</div>
+            <div class="sheet-label">SUMMARY 탭</div>
+            <ul>
+              <li>Owner Code</li>
+              <li>Item Code</li>
+              <li>OB Confirm DT</li>
+              <li>Sum of Confirm QTY</li>
+              <li>Grand Total 행</li>
+            </ul>
+          </div>
+        </div>
+        <div class="tip" style="margin-top:12px;">
+          <strong>💡</strong> WMS에서 받은 원본 Excel 파일은 피벗 파일 생성 후 자동으로 삭제됩니다.
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h4>Enter를 눌러 종료</h4>
+        <p>완료 후 저장된 파일 경로가 표시됩니다. <strong>Enter</strong>를 누르면 창이 닫힙니다.</p>
+        <div class="note">
+          <strong>오류가 뜨면:</strong> <code>.env</code> 파일의 WMS_ID·WMS_PW를 확인하세요. 리포트 하나가 실패해도 나머지 하나는 정상 저장됩니다.
+        </div>
+      </div>
+    </div>
+
+  </div>
+  </details>
+
+</div>
+</details>
+
+
+<!-- ═══════════════════════════
+     ENGLISH VERSION
+     ═══════════════════════════ -->
+<details class="lang-block en">
+<summary>
+  <span class="flag">🇺🇸</span>
+  <h2>English Guide</h2>
+  <span class="chev">▼</span>
+</summary>
+<div class="lang-body">
+
+  <!-- Installation -->
+  <details class="section-wrap">
+  <summary>
+    <h3><span class="ico">⬇️</span> Installation (first time only)</h3>
+    <span class="chev">▼</span>
+  </summary>
+  <div class="section-body">
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h4>Click the download button above</h4>
+        <p>The blue button will take you to the company SharePoint page.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h4>Sign in with your company account</h4>
+        <p>Log in with your FNS company email. If you're already signed in, this step is skipped automatically.</p>
+
+<svg class="mock" viewBox="0 0 720 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Microsoft login screen">
+  <rect width="720" height="360" fill="#f3f4f6"/>
+  <rect x="210" y="50" width="300" height="260" rx="6" fill="#fff" stroke="#e0e4ea"/>
+  <g transform="translate(238,84)">
+    <rect x="0"  y="0"  width="11" height="11" fill="#f25022"/>
+    <rect x="13" y="0"  width="11" height="11" fill="#7fba00"/>
+    <rect x="0"  y="13" width="11" height="11" fill="#00a4ef"/>
+    <rect x="13" y="13" width="11" height="11" fill="#ffb900"/>
+    <text x="32" y="20" font-family="Segoe UI,sans-serif" font-size="13" fill="#5e5e5e">Microsoft</text>
+  </g>
+  <text x="238" y="144" font-family="Segoe UI,sans-serif" font-size="20" font-weight="600" fill="#1b1b1b">Sign in</text>
+  <rect x="238" y="158" width="244" height="34" rx="2" fill="#fff" stroke="#8a8886" stroke-width="1.5"/>
+  <text x="248" y="180" font-family="Segoe UI,sans-serif" font-size="13" fill="#aaa">name@fnsul.com</text>
+  <rect x="390" y="228" width="92" height="32" rx="2" fill="#0067b8"/>
+  <text x="436" y="249" font-family="Segoe UI,sans-serif" font-size="13" fill="#fff" text-anchor="middle">Next</text>
+  <text x="360" y="330" font-family="Segoe UI,sans-serif" font-size="12" fill="#9aa0a6" text-anchor="middle">Sign in with your FNS company account</text>
+</svg>
+
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h4>Download the file</h4>
+        <p>On the SharePoint page, click the <strong>Download</strong> button in the top-left to download the zip file.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <h4>Unzip the file</h4>
+        <p>Right-click <code>FG Report Downloader.zip</code> → <strong>"Extract All"</strong>. Open the extracted folder and run <code>FG Report Downloader.exe</code>.</p>
+        <div class="note">
+          <strong>⚠️ Important:</strong> The <code>_internal</code> folder and the <code>.exe</code> file must stay together. <strong>Do not copy the .exe by itself</strong> — it won't run without the <code>_internal</code> folder next to it.
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-content">
+        <h4>Windows security warning (first run)</h4>
+        <p>The first time you run the EXE, Windows may show a blue warning screen. This is normal for unsigned EXE files.</p>
+
+<svg class="mock" viewBox="0 0 620 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Windows Defender SmartScreen warning">
+  <rect width="620" height="320" fill="#eef0f3"/>
+  <rect x="80" y="30" width="460" height="260" rx="4" fill="#fff" stroke="#cfd4da"/>
+  <rect x="80" y="30" width="460" height="56" fill="#0b3d91"/>
+  <text x="106" y="56" font-family="Segoe UI,sans-serif" font-size="16" font-weight="600" fill="#fff">Windows protected your PC</text>
+  <text x="106" y="74" font-family="Segoe UI,sans-serif" font-size="11" fill="#cdd9ef">Microsoft Defender SmartScreen</text>
+  <text x="106" y="118" font-family="Segoe UI,sans-serif" font-size="13" fill="#333">Microsoft Defender SmartScreen prevented an unrecognized</text>
+  <text x="106" y="138" font-family="Segoe UI,sans-serif" font-size="13" fill="#333">app from starting. Running this app might put your PC at risk.</text>
+  <rect x="105" y="168" width="68" height="20" fill="none" stroke="#e53935" stroke-width="2" rx="2"/>
+  <text x="110" y="183" font-family="Segoe UI,sans-serif" font-size="13" fill="#0067b8" font-weight="600">More info</text>
+  <rect x="428" y="242" width="92" height="28" fill="#e1e1e1" stroke="#bdbdbd"/>
+  <text x="474" y="261" font-family="Segoe UI,sans-serif" font-size="13" fill="#333" text-anchor="middle">Don't run</text>
+</svg>
+
+        <p style="margin-top:10px;">Click <strong>"More info"</strong> — a <strong>"Run anyway"</strong> button will appear. Click it to proceed.</p>
+
+<svg class="mock" viewBox="0 0 620 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Run anyway button">
+  <rect width="620" height="320" fill="#eef0f3"/>
+  <rect x="80" y="20" width="460" height="280" rx="4" fill="#fff" stroke="#cfd4da"/>
+  <rect x="80" y="20" width="460" height="56" fill="#0b3d91"/>
+  <text x="106" y="46" font-family="Segoe UI,sans-serif" font-size="16" font-weight="600" fill="#fff">Windows protected your PC</text>
+  <text x="106" y="64" font-family="Segoe UI,sans-serif" font-size="11" fill="#cdd9ef">Microsoft Defender SmartScreen</text>
+  <text x="106" y="108" font-family="Segoe UI,sans-serif" font-size="12" fill="#666">App:</text>
+  <text x="154" y="108" font-family="Segoe UI,sans-serif" font-size="12" fill="#222">FG Report Downloader.exe</text>
+  <text x="106" y="130" font-family="Segoe UI,sans-serif" font-size="12" fill="#666">Publisher:</text>
+  <text x="178" y="130" font-family="Segoe UI,sans-serif" font-size="12" fill="#222">Unknown publisher</text>
+  <rect x="320" y="242" width="98" height="30" fill="#e1e1e1" stroke="#e53935" stroke-width="2.5"/>
+  <text x="369" y="262" font-family="Segoe UI,sans-serif" font-size="13" fill="#222" text-anchor="middle">Run anyway</text>
+  <rect x="426" y="242" width="92" height="30" fill="#e1e1e1" stroke="#bdbdbd"/>
+  <text x="472" y="262" font-family="Segoe UI,sans-serif" font-size="13" fill="#333" text-anchor="middle">Don't run</text>
+</svg>
+
+        <div class="tip"><strong>💡 One time only:</strong> This warning will not appear again after the first run.</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">6</div>
+      <div class="step-content">
+        <h4>If the app is still blocked — Unblock the file</h4>
+        <p>If <strong>"Run anyway" is not shown</strong>, unblock the file from its properties.</p>
+        <p>Right-click <code>FG Report Downloader.exe</code> → <strong>Properties</strong> → check <strong>"Unblock"</strong> at the bottom → click <strong>OK</strong>, then run again.</p>
+
+<svg class="mock" viewBox="0 0 600 430" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="File Properties Unblock checkbox">
+  <rect width="600" height="430" fill="#eef0f3"/>
+  <rect x="160" y="20" width="280" height="390" rx="4" fill="#f3f3f3" stroke="#c8ccd2"/>
+  <rect x="160" y="20" width="280" height="34" rx="4" fill="#fff" stroke="#e3e7ec"/>
+  <text x="176" y="42" font-family="Segoe UI,sans-serif" font-size="12" fill="#333">FG Report Downloader.exe Properties</text>
+  <text x="424" y="42" font-family="Segoe UI,sans-serif" font-size="13" fill="#777">✕</text>
+  <rect x="174" y="66" width="56" height="22" fill="#fff" stroke="#c8ccd2"/>
+  <text x="182" y="81" font-family="Segoe UI,sans-serif" font-size="11" fill="#222">General</text>
+  <rect x="174" y="88" width="252" height="184" fill="#fff" stroke="#c8ccd2"/>
+  <text x="190" y="150" font-family="Segoe UI,sans-serif" font-size="11" fill="#888">File type: Application (.exe)</text>
+  <text x="190" y="170" font-family="Segoe UI,sans-serif" font-size="11" fill="#888">Location: C:\Users\...\Downloads</text>
+  <line x1="190" y1="186" x2="412" y2="186" stroke="#ececec"/>
+  <text x="190" y="210" font-family="Segoe UI,sans-serif" font-size="11" fill="#555">Security:</text>
+  <text x="234" y="210" font-family="Segoe UI,sans-serif" font-size="10.5" fill="#777">This file came from another computer</text>
+  <text x="234" y="225" font-family="Segoe UI,sans-serif" font-size="10.5" fill="#777">and might be blocked to protect this PC.</text>
+  <rect x="310" y="248" width="16" height="16" fill="#fff" stroke="#0067b8"/>
+  <path d="M313 256 l3 4 l6-8" stroke="#0067b8" stroke-width="2" fill="none"/>
+  <text x="332" y="261" font-family="Segoe UI,sans-serif" font-size="11.5" fill="#222" font-weight="600">Unblock</text>
+  <rect x="304" y="244" width="90" height="26" fill="none" stroke="#e53935" stroke-width="2" rx="2"/>
+  <rect x="270" y="372" width="50" height="26" fill="#0067b8"/>
+  <text x="295" y="389" font-family="Segoe UI,sans-serif" font-size="11" fill="#fff" text-anchor="middle">OK</text>
+  <rect x="326" y="372" width="50" height="26" fill="#e6e6e6" stroke="#bdbdbd"/>
+  <text x="351" y="389" font-family="Segoe UI,sans-serif" font-size="11" fill="#333" text-anchor="middle">Cancel</text>
+</svg>
+
+        <div class="note">
+          <strong>If "Unblock" is not visible</strong>, the file is already unblocked. Use <strong>More info → Run anyway</strong> from step 5.
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">7</div>
+      <div class="step-content">
+        <h4>Configure the .env file</h4>
+        <p>Inside the <code>FG Report Downloader</code> folder, right-click the <code>.env</code> file → <strong>Open with → Notepad</strong> and fill in your credentials.</p>
+        <ul class="field-list">
+          <li><span class="key">WMS_ID</span> Your WMS login username</li>
+          <li><span class="key">WMS_PW</span> Your WMS password</li>
+          <li><span class="key">SAVE_DIR</span> Folder to save the reports. <strong>Leave blank</strong> to use your Downloads folder automatically.</li>
+        </ul>
+        <div class="tip">
+          <strong>💡 Setting a custom SAVE_DIR:</strong> In File Explorer, open the folder you want, click the address bar at the top, press <strong>Ctrl+A</strong> then <strong>Ctrl+C</strong> to copy the path, and paste it after <code>SAVE_DIR=</code>.
+        </div>
+        <div class="note">
+          <strong>⚠️ The app will not run without WMS_ID and WMS_PW.</strong> Contact your administrator if you don't have a .env file.
+        </div>
+      </div>
+    </div>
+
+  </div>
+  </details>
+
+  <!-- What it does -->
+  <details class="section-wrap">
+  <summary>
+    <h3><span class="ico">📖</span> What it does</h3>
+    <span class="chev">▼</span>
+  </summary>
+  <div class="section-body">
+
+    <p style="font-size:13.5px; color:#4a5568; margin-bottom:16px;">
+      Double-click <code>FG Report Downloader.exe</code> — a command prompt window opens and runs automatically. No buttons to click. Chrome runs silently in the background; no browser window will appear.
+    </p>
+
+    <div class="console">
+      <div class="c-head">=============================================</div>
+      <div class="c-head">  FG Report Downloader</div>
+      <div class="c-head">=============================================</div>
+      <div class="c-dim">Warehouse  : Joliet WH</div>
+      <div class="c-dim">Owner Codes: 1033400,7001534</div>
+      <div class="c-dim">Save folder: C:\Users\...\Downloads\06.25.2026</div>
+      <div>&nbsp;</div>
+      <div class="c-info">[1/6] Logging into WMS...</div>
+      <div class="c-info">[2/6] Navigating to Inventory By Attribute...</div>
+      <div class="c-info">[3/6] Setting search conditions...</div>
+      <div class="c-info">[4/6] Downloading Inventory Excel...</div>
+      <div class="c-ok">  Received: Inventory_By_Attribute_20260625.xlsx</div>
+      <div class="c-info">[5/6] Navigating to Outbound Report...</div>
+      <div class="c-ok">  Received: Outbound_Report_20260625.xlsx</div>
+      <div class="c-info">[6/6] Building pivot files...</div>
+      <div class="c-ok">  Saved: FG_Inventory_20260625143022.xlsx</div>
+      <div class="c-ok">  Saved: FG_Outbound_20260625143022.xlsx</div>
+      <div>&nbsp;</div>
+      <div class="c-ok">Done!</div>
+      <div class="c-path">  C:\Users\...\Downloads\06.25.2026\FG_Inventory_20260625143022.xlsx</div>
+      <div class="c-path">  C:\Users\...\Downloads\06.25.2026\FG_Outbound_20260625143022.xlsx</div>
+      <div>&nbsp;</div>
+      <div class="c-dim">Press Enter to close...</div>
+    </div>
+
+    <div class="step" style="margin-top:20px;">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h4>Logs into WMS and downloads two reports</h4>
+        <ul class="field-list">
+          <li><span class="key">Report 1</span> Inventory &gt; Inventory &gt; <strong>Inventory By Attribute</strong> — current FG stock by item and lot</li>
+          <li><span class="key">Report 2</span> Report &gt; <strong>Outbound Report</strong> — shipments from the 1st of the current month to today</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h4>Creates two formatted Excel files</h4>
+        <p>Saved in a date-named folder inside your <code>SAVE_DIR</code> (e.g. <code>Downloads\06.25.2026\</code>). Each file has a <strong>SUMMARY</strong> tab and a <strong>RAW DATA</strong> tab.</p>
+        <div class="output-grid">
+          <div class="output-card">
+            <div class="filename">FG_Inventory_[timestamp].xlsx</div>
+            <div class="sheet-label">SUMMARY tab</div>
+            <ul>
+              <li>Owner Code</li>
+              <li>Item Code</li>
+              <li>Product Lot</li>
+              <li>Sum of Total QTY</li>
+              <li>Sum of Available QTY</li>
+              <li>Grand Total row</li>
+            </ul>
+          </div>
+          <div class="output-card">
+            <div class="filename">FG_Outbound_[timestamp].xlsx</div>
+            <div class="sheet-label">SUMMARY tab</div>
+            <ul>
+              <li>Owner Code</li>
+              <li>Item Code</li>
+              <li>OB Confirm DT</li>
+              <li>Sum of Confirm QTY</li>
+              <li>Grand Total row</li>
+            </ul>
+          </div>
+        </div>
+        <div class="tip" style="margin-top:12px;">
+          <strong>💡</strong> The raw WMS Excel files are automatically deleted after the pivot files are created.
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h4>Press Enter to close</h4>
+        <p>When done, the saved file paths are shown. Press <strong>Enter</strong> to close the window.</p>
+        <div class="note">
+          <strong>If you see an error:</strong> Check that WMS_ID and WMS_PW in the <code>.env</code> file are correct. If one report fails, the other will still be saved.
+        </div>
+      </div>
+    </div>
+
+  </div>
+  </details>
+
+</div>
+</details>
+
+<footer>Questions or issues? Contact your administrator.</footer>
+
+</div>
+</body>
+</html>

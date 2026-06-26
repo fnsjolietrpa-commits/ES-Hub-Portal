@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FNS Chicago Hub</title>
+  <style>
+    :root {
+      --bg-1: #0f1020;
+      --bg-2: #17192e;
+      --bg-3: #221b3a;
+      --panel-bg: rgba(8, 10, 24, 0.45);
+      --panel-border: rgba(255,255,255,0.08);
+      --text: #f5f7ff;
+      --muted: #aab1d3;
+      --accent: #9b87f5;
+      --accent-2: #5eead4;
+      --accent-3: #f472b6;
+      --shadow: 0 16px 40px rgba(0, 0, 0, 0.24);
+      --sidebar-width: 250px;
+      --gap: 24px;
+      --transition: 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+      --card-bg: linear-gradient(180deg, rgba(255,255,255,0.11), rgba(255,255,255,0.07));
+      --card-border: rgba(255,255,255,0.10);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: "Inter", "Pretendard", "Noto Sans KR", "Segoe UI", Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 10% 20%, rgba(94, 234, 212, 0.10), transparent 30%),
+        radial-gradient(circle at 90% 10%, rgba(155, 135, 245, 0.18), transparent 28%),
+        radial-gradient(circle at 80% 80%, rgba(244, 114, 182, 0.10), transparent 24%),
+        linear-gradient(135deg, var(--bg-1), var(--bg-2) 45%, var(--bg-3));
+      min-height: 100%;
+      overflow-x: hidden;
+    }
+
+    body::before, body::after {
+      content: "";
+      position: fixed;
+      width: 360px;
+      height: 360px;
+      border-radius: 50%;
+      filter: blur(80px);
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.22;
+      animation: floatBlob 16s ease-in-out infinite;
+    }
+
+    body::before {
+      top: -120px;
+      right: -80px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-3));
+    }
+
+    body::after {
+      bottom: -140px;
+      left: -100px;
+      background: linear-gradient(135deg, var(--accent-2), var(--accent));
+      animation-delay: -7s;
+    }
+
+    @keyframes floatBlob {
+      0%, 100% { transform: translate3d(0,0,0) scale(1); }
+      50% { transform: translate3d(20px,-10px,0) scale(1.08); }
+    }
+
+    .layout {
+      position: relative;
+      z-index: 1;
+      max-width: 1680px;
+      margin: 0 auto;
+      padding: 24px;
+      display: grid;
+      grid-template-columns: var(--sidebar-width) minmax(0, 1fr) var(--sidebar-width);
+      gap: var(--gap);
+      min-height: 100vh;
+    }
+
+    .panel {
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      min-height: calc(100vh - 48px);
+      position: sticky;
+      top: 24px;
+      overflow: hidden;
+    }
+
+    .sidebar { padding: 22px 16px; }
+    .right-panel { padding: 22px 16px; }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 8px 22px;
+    }
+
+    .brand-mark {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      font-size: 20px;
+      background: linear-gradient(135deg, rgba(155,135,245,0.85), rgba(94,234,212,0.8));
+      box-shadow: 0 10px 24px rgba(94, 234, 212, 0.16);
+      flex-shrink: 0;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 0.98rem;
+      line-height: 1.1;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      white-space: nowrap;
+    }
+
+    .brand p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+
+    .nav-section { margin: 14px 8px 0; }
+
+    .nav-title {
+      color: var(--muted);
+      font-size: 0.76rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      margin: 0 0 12px;
+      padding-left: 8px;
+    }
+
+    .nav-list { display: grid; gap: 8px; }
+
+    .nav-link {
+      color: var(--text);
+      text-decoration: none;
+      border-radius: 14px;
+      border: 1px solid transparent;
+      transition: all var(--transition);
+    }
+
+    .nav-link:hover, .nav-link.active {
+      background: rgba(255,255,255,0.07);
+      border-color: rgba(255,255,255,0.10);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+
+    .nav-link.quick-simple {
+      display: block;
+      padding: 13px 14px;
+    }
+
+    .quick-label {
+      display: block;
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.2;
+    }
+
+    .nav-link.static {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 12px;
+      cursor: default;
+    }
+
+    .nav-icon {
+      width: 32px;
+      height: 32px;
+      display: grid;
+      place-items: center;
+      border-radius: 11px;
+      background: rgba(255,255,255,0.08);
+      font-size: 0.94rem;
+      flex-shrink: 0;
+    }
+
+    .nav-meta {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .nav-meta strong {
+      font-size: 0.9rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .nav-meta span { color: var(--muted); font-size: 0.78rem; }
+
+    .main {
+      min-width: 0;
+      padding: 10px 0 24px;
+    }
+
+    .topbar {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .menu-toggle {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.08);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.10);
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    .content {
+      display: grid;
+      gap: 38px;
+      padding: 8px 0;
+    }
+
+    .section { display: grid; gap: 18px; }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .section-title {
+      margin: 0;
+      font-size: 0.9rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      color: rgba(255,255,255,0.72);
+      text-transform: uppercase;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .portal-card {
+      position: relative;
+      overflow: hidden;
+      width: 100%;
+      min-height: 154px;
+      border-radius: 18px;
+      padding: 20px 18px 18px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      cursor: pointer;
+    }
+
+    .portal-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(255,255,255,0.18);
+      box-shadow: 0 14px 34px rgba(0,0,0,0.24);
+    }
+
+    .portal-card:focus-visible {
+      outline: 2px solid rgba(94, 234, 212, 0.7);
+      outline-offset: 2px;
+    }
+
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .card-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      font-size: 1.2rem;
+      background: linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.08));
+      border: 1px solid rgba(255,255,255,0.08);
+      flex-shrink: 0;
+    }
+
+    .fav-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.05);
+      color: rgba(255,255,255,0.56);
+      border: 1px solid rgba(255,255,255,0.06);
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all var(--transition);
+      flex-shrink: 0;
+    }
+
+    .fav-btn:hover { transform: translateY(-1px); }
+
+    .fav-btn.active {
+      color: #ffd166;
+      background: rgba(255, 209, 102, 0.12);
+    }
+
+    .fav-cat-label {
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: rgba(255,255,255,0.38);
+      margin: 18px 0 10px;
+      padding-left: 2px;
+    }
+
+    .fav-cat-label:first-child { margin-top: 4px; }
+
+    .card-body { margin-top: 14px; }
+
+    .card-title {
+      margin: 0;
+      font-size: 1.02rem;
+      line-height: 1.35;
+      letter-spacing: -0.02em;
+      word-break: keep-all;
+      font-weight: 800;
+    }
+
+    .card-desc {
+      margin: 10px 0 0;
+      color: rgba(255,255,255,0.66);
+      line-height: 1.55;
+      font-size: 0.86rem;
+      word-break: keep-all;
+    }
+
+    .right-header { padding: 8px 8px 18px; }
+
+    .right-title {
+      margin: 0;
+      font-size: 0.95rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      color: rgba(255,255,255,0.9);
+      text-transform: uppercase;
+    }
+
+    .updates-list {
+      display: grid;
+      gap: 12px;
+      padding: 0 8px 8px;
+    }
+
+    .update-item {
+      padding: 14px 14px 13px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+    }
+
+    .update-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .update-date {
+      font-size: 0.74rem;
+      font-weight: 700;
+      color: rgba(255,255,255,0.6);
+      letter-spacing: 0.04em;
+    }
+
+    .update-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 0.66rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+
+    .update-badge.new {
+      color: #7ef2d8;
+      background: rgba(94,234,212,0.12);
+      border-color: rgba(94,234,212,0.18);
+    }
+
+    .update-badge.fix {
+      color: #ffd98a;
+      background: rgba(255,209,102,0.12);
+      border-color: rgba(255,209,102,0.18);
+    }
+
+    .update-badge.notice {
+      color: #d4c4ff;
+      background: rgba(155,135,245,0.14);
+      border-color: rgba(155,135,245,0.20);
+    }
+
+    .update-badge.updated {
+      color: #93c5fd;
+      background: rgba(59,130,246,0.12);
+      border-color: rgba(59,130,246,0.20);
+    }
+
+    .update-title {
+      margin: 0;
+      font-size: 0.9rem;
+      line-height: 1.35;
+      font-weight: 800;
+      color: var(--text);
+      word-break: keep-all;
+    }
+
+    .update-desc {
+      margin: 8px 0 0;
+      font-size: 0.79rem;
+      line-height: 1.5;
+      color: rgba(255,255,255,0.64);
+      word-break: keep-all;
+    }
+
+    .empty-state {
+      padding: 24px;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.06);
+      border: 1px dashed rgba(255,255,255,0.14);
+      color: var(--muted);
+      text-align: center;
+      display: none;
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(4, 6, 16, 0.52);
+      backdrop-filter: blur(4px);
+      opacity: 0;
+      visibility: hidden;
+      transition: all var(--transition);
+      z-index: 20;
+    }
+
+    .overlay.show { opacity: 1; visibility: visible; }
+
+    .toast-wrap {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      display: grid;
+      gap: 10px;
+      z-index: 50;
+    }
+
+    .toast {
+      min-width: 240px;
+      max-width: 340px;
+      padding: 13px 15px;
+      border-radius: 14px;
+      background: rgba(14, 17, 35, 0.88);
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+      color: var(--text);
+      animation: toastIn 280ms ease;
+    }
+
+    .toast strong { display: block; margin-bottom: 5px; font-size: 0.92rem; }
+    .toast span { color: var(--muted); font-size: 0.84rem; line-height: 1.45; }
+
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 1380px) {
+      .layout { grid-template-columns: var(--sidebar-width) minmax(0, 1fr); }
+      .right-panel { display: none; }
+    }
+
+    @media (max-width: 1180px) {
+      .card-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 1024px) {
+      .layout { grid-template-columns: minmax(0, 1fr); padding: 18px; }
+      .sidebar {
+        position: fixed;
+        left: 18px;
+        top: 18px;
+        bottom: 18px;
+        z-index: 30;
+        width: var(--sidebar-width);
+        min-height: auto;
+        transform: translateX(calc(-100% - 18px));
+        transition: transform var(--transition);
+      }
+      .sidebar.show { transform: translateX(0); }
+      .topbar { display: flex; }
+      .main { padding: 0 0 24px; }
+      .card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 720px) {
+      .card-grid { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+      .portal-card { min-height: 138px; padding: 18px 16px 16px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="overlay" id="overlay"></div>
+
+  <div class="layout">
+    <aside class="panel sidebar" id="sidebar" aria-label="사이드 메뉴">
+      <div class="brand">
+        <div class="brand-mark">✦</div>
+        <div>
+          <h1>FNS Chicago Hub</h1>
+          <p>Web Portal</p>
+        </div>
+      </div>
+
+      <section class="nav-section">
+        <div class="nav-title">Quick Menu</div>
+        <div class="nav-list" id="quickMenu"></div>
+      </section>
+
+      <section class="nav-section">
+        <div class="nav-title">Status</div>
+        <div class="nav-list">
+          <div class="nav-link static">
+            <span class="nav-icon">🟢</span>
+            <span class="nav-meta">
+              <strong>시스템 정상</strong>
+              <span id="appCountText">로딩 중</span>
+            </span>
+          </div>
+          <div class="nav-link static">
+            <span class="nav-icon">⭐</span>
+            <span class="nav-meta">
+              <strong>즐겨찾기</strong>
+              <span><span id="favoriteCount">0</span>개 선택됨</span>
+            </span>
+          </div>
+        </div>
+      </section>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <button class="menu-toggle" id="menuToggle" aria-label="메뉴 열기">☰</button>
+      </div>
+      <div class="content" id="content"></div>
+    </main>
+
+    <aside class="panel right-panel" aria-label="Recent Updates">
+      <div class="right-header">
+        <h2 class="right-title">Recent Updates</h2>
+      </div>
+      <div class="updates-list" id="recentUpdates"></div>
+    </aside>
+  </div>
+
+  <div class="toast-wrap" id="toastWrap" aria-live="polite" aria-atomic="true"></div>
+
+  <script>
+    // ─── 데이터 ────────────────────────────────────────────────
+    // 앱 추가/수정 시 여기만 편집하면 됩니다.
+    var PORTAL_DATA = {
+      apps: [
+        {
+          id: 'location-dashboard',
+          name: '로케이션 활용 대시보드',
+          desc: '창고 로케이션 활용 현황',
+          url: 'https://script.google.com/macros/s/AKfycbwB0GI742d0fuCW17KxQ4UiJEusSf-fXg5kHSaU9HON8oLbk3YdOzBaGlOslJvp6yg/exec',
+          icon: '📍',
+          category: 'IB'
+        },
+        {
+          id: 'IB-Data-Downloader',
+          name: 'IB data 다운로더',
+          desc: '입고 내역 자동 다운로드',
+          url: './guide-nerp_downloader.html',
+          icon: '💾',
+          category: 'IB'
+        },
+        {
+          id: 'QC-Label-Generator',
+          name: 'QC 라벨 생성기',
+          desc: 'Busbar A&B, MICA QC라벨 생성',
+          url: './guide-qclabel_yellow.html',
+          icon: '🏷️',
+          category: 'VAS'
+        },
+        {
+          id: 'guide_totebox',
+          name: 'Totebox 관리 RPA',
+          desc: 'PWS/MI 공장 토트박스 초과재고 산출 및 담당자 이메일 발송',
+          url: './guide_totebox.html',
+          icon: '✉️',
+          category: 'VAS'
+        },
+        {
+          id: 'guide_pws_inventory',
+          name: 'PWS 재고 현황 리포트',
+          desc: 'PWS 자재별 재고일수 산출 및 담당자 이메일 발송',
+          url: './guide_pws_inventory.html',
+          icon: '✉️',
+          category: 'VAS'
+        },
+        {
+          id: 'dispatch-automation',
+          name: '배차 자동화',
+          desc: '배차 작업 자동 처리',
+          url: 'https://script.google.com/macros/s/AKfycbyHxVKdSXRFihmenOUJw-zPfjUoJnZ2N2cEKqSFvZoz0-4n3MwybJaK7drIYYBErRnm/exec',
+          icon: '🚚',
+          category: 'OB'
+        },
+        {
+          id: 'ob-file-converter',
+          name: 'OB 파일 포메터',
+          desc: '아웃바운드 파일 형식 변환',
+          url: 'https://script.google.com/macros/s/AKfycbzlDkp-JPZLT7Pz-F5GprfjxrepnbImgLqxrd1XIFjRLtcMTTqLRasWzP-lcs3O6kd5/exec',
+          icon: '🔄',
+          category: 'OB'
+        },
+        {
+          id: 'shipping-name-converter',
+          name: '선적서류 파일명 컨버터',
+          desc: '서류 파일명을 PO + HBL 로 변환',
+          url: './guide-rename.html',
+          icon: '➗',
+          category: 'OB'
+        },
+        {
+          id: 'wms-doc-uploader',
+          name: 'WMS 선적서류 업로더',
+          desc: '선적 서류를 WMS에 자동 업로드',
+          url: './guide-ciplupload.html',
+          icon: '💻',
+          category: 'OB'
+        },
+        {
+          id: 'bol_merger',
+          name: 'BOL merger',
+          desc: '여러개의 BOL을 체크리스트와 함께 출력',
+          url: './guide-bol_merger.html',
+          icon: '📄',
+          category: 'OB'
+        },
+        {
+          id: 'fg_report_downloader',
+          name: 'FG Report Downloader',
+          desc: 'FG 리포트 다운로드 & 정리된 Excel 파일로 저장',
+          url: './guide-fg_report_downloader.html',
+          icon: '🔽',
+          category: 'FG'
+        },
+        {
+          id: 'FG-Portal',
+          name: 'FG Portal',
+          desc: 'FG 물동량 & 로케이션 사용률 관리',
+          url: 'https://script.google.com/macros/s/AKfycbzq1QVwr0vN9MsrlnTFBa1nVtaaVI1gw3Je8yYFrlVHARCIRV96Ab6dsSAsTVijekie/exec',
+          icon: '📊',
+          category: 'FG'
+        },
+        {
+          id: 'fareclock-dashboard',
+          name: 'fareclock 인건비 대시보드',
+          desc: '근태 기반 인건비 분석',
+          url: 'https://script.google.com/macros/s/AKfycbwiu7VVLgmBMzHOVM04-2fk_3g_5Fr0nfBn4GQ9IQpa4n3zhBBjuB7TmWwsy_nwqoRkfA/exec',
+          icon: '💰',
+          category: '관리'
+        },
+        {
+          id: 'guide_fareclock_today',
+          name: 'FareClock 클락인 현황',
+          desc: '오늘자 출근 인원 집계 및 관리자 이메일 발송',
+          url: './guide_fareclock_today.html',
+          icon: '✉️',
+          category: '관리'
+        },
+        {
+          id: 'guide_fareclock_daily',
+          name: 'FareClock 데일리 타임카드 리포트',
+          desc: '일별 타임카드 집계 및 관리자 이메일 발송',
+          url: './guide_fareclock_daily.html',
+          icon: '✉️',
+          category: '관리'
+        }
+      ],
+      updates: [
+        {
+          date: '2026-06-16',
+          tag: 'NEW',
+          title: 'IB Data Downloader',
+          desc: 'IB Data를 자동으로 다운로드 해주는 프로그램을 개발하였습니다.'
+        },
+        {
+          date: '2026-06-16',
+          tag: 'Updated',
+          title: '선적서류 PO변환',
+          desc: 'HBL대신 MBL을 가져오는 오류를 수정하였습니다. 직관적인 팝업 알림을 추가하였습니다.'
+        },
+        {
+          date: '2026-06-16',
+          tag: 'NEW',
+          title: 'BOL merger',
+          desc: 'Seal # 자동 입력 및 뒷면 체크리스트 포함하여 여러개의 BOL을 한번에 출력하는 BOL merger를 개발하였습니다.'
+        }
+      ]
+    };
+
+    // ─── 상태 ──────────────────────────────────────────────────
+    var state = {
+      apps: [],
+      updates: [],
+      favorites: new Set(loadFavorites())
+    };
+
+    var sidebar = document.getElementById('sidebar');
+    var overlay = document.getElementById('overlay');
+    var menuToggle = document.getElementById('menuToggle');
+    var quickMenuEl = document.getElementById('quickMenu');
+    var contentEl = document.getElementById('content');
+    var favoriteCountEl = document.getElementById('favoriteCount');
+    var appCountTextEl = document.getElementById('appCountText');
+    var recentUpdatesEl = document.getElementById('recentUpdates');
+
+    function init() {
+      bindStaticEvents();
+      state.apps = PORTAL_DATA.apps;
+      state.updates = PORTAL_DATA.updates;
+      renderPortal();
+    }
+
+    function bindStaticEvents() {
+      if (menuToggle) menuToggle.addEventListener('click', openSidebar);
+      overlay.addEventListener('click', closeSidebar);
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeSidebar();
+      });
+
+      quickMenuEl.addEventListener('click', function(e) {
+        var link = e.target.closest('.nav-link[data-target]');
+        if (!link) return;
+        document.querySelectorAll('#quickMenu .nav-link').forEach(function(item) {
+          item.classList.remove('active');
+        });
+        link.classList.add('active');
+        if (window.innerWidth <= 1024) closeSidebar();
+      });
+
+      contentEl.addEventListener('click', function(e) {
+        var favBtn = e.target.closest('.fav-btn');
+        if (favBtn) {
+          e.stopPropagation();
+          toggleFavorite(favBtn.dataset.appId);
+          return;
+        }
+        var card = e.target.closest('.portal-card');
+        if (!card) return;
+        openCard(card.dataset.appId);
+      });
+
+      contentEl.addEventListener('keydown', function(e) {
+        var card = e.target.closest('.portal-card');
+        if (!card) return;
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openCard(card.dataset.appId);
+        }
+      });
+    }
+
+    function renderPortal() {
+      renderQuickMenu();
+      renderSections();
+      renderUpdates(state.updates);
+      syncFavoritesUI();
+      appCountTextEl.textContent = state.apps.length + '개 도구 사용 가능';
+    }
+
+    function renderQuickMenu() {
+      var categories = getOrderedCategories();
+      var hasFavorites = state.favorites.size > 0 && state.apps.some(function(app) {
+        return state.favorites.has(app.id);
+      });
+
+      var favItem = hasFavorites
+        ? '<a class="nav-link quick-simple active" href="#section-favorites" data-target="section-favorites"><span class="quick-label">⭐ 즐겨찾기</span></a>'
+        : '';
+
+      quickMenuEl.innerHTML = favItem + categories.map(function(category, index) {
+        return '<a class="nav-link quick-simple' + (!hasFavorites && index === 0 ? ' active' : '') + '" href="#' + getSectionId(category) + '" data-target="' + getSectionId(category) + '">' +
+          '<span class="quick-label">' + escapeHtml(category) + '</span>' +
+        '</a>';
+      }).join('');
+    }
+
+    function renderFavoritesSection() {
+      var favApps = state.apps.filter(function(app) {
+        return state.favorites.has(app.id);
+      });
+      if (favApps.length === 0) return '';
+
+      var catOrder = ['IB', 'VAS', 'OB', 'FG', '관리'];
+      var grouped = {};
+      favApps.forEach(function(app) {
+        var key = app.category || '기타';
+        if (!grouped[key]) grouped[key] = [];
+        grouped[key].push(app);
+      });
+
+      var orderedCats = catOrder.filter(function(c) {
+        return grouped[c];
+      }).concat(Object.keys(grouped).filter(function(c) {
+        return catOrder.indexOf(c) === -1;
+      }));
+
+      var innerHtml = orderedCats.map(function(cat) {
+        return '<div class="fav-cat-label">' + escapeHtml(cat) + '</div>' +
+          '<div class="card-grid">' +
+            grouped[cat].map(function(app) { return renderCard(app); }).join('') +
+          '</div>';
+      }).join('');
+
+      return '<section class="section" id="section-favorites">' +
+        '<div class="section-head"><h3 class="section-title">⭐ 즐겨찾기</h3></div>' +
+        innerHtml +
+      '</section>';
+    }
+
+    function renderSections() {
+      var groups = groupAppsByCategory(state.apps);
+      var favSection = renderFavoritesSection();
+
+      var sectionsHtml = getOrderedCategories().map(function(category) {
+        var apps = groups[category] || [];
+        return '<section class="section" id="' + getSectionId(category) + '" data-category-section="' + escapeHtml(category) + '">' +
+          '<div class="section-head"><h3 class="section-title">' + escapeHtml(category) + '</h3></div>' +
+          '<div class="card-grid">' +
+            apps.map(function(app) { return renderCard(app); }).join('') +
+          '</div>' +
+        '</section>';
+      }).join('');
+
+      contentEl.innerHTML = favSection + sectionsHtml +
+        '<div class="empty-state" id="emptyState">표시할 도구가 없습니다.</div>';
+    }
+
+    function renderCard(app) {
+      var isFavorite = state.favorites.has(app.id);
+      return '<article class="portal-card" data-app-id="' + escapeHtml(app.id) + '" tabindex="0" role="button" aria-label="' + escapeHtml(app.name) + ' 열기">' +
+        '<div class="card-top">' +
+          '<div class="card-icon">' + escapeHtml(app.icon || '📦') + '</div>' +
+          '<button class="fav-btn' + (isFavorite ? ' active' : '') + '" type="button" aria-label="즐겨찾기" data-app-id="' + escapeHtml(app.id) + '">' +
+            (isFavorite ? '★' : '☆') +
+          '</button>' +
+        '</div>' +
+        '<div class="card-body">' +
+          '<h4 class="card-title">' + escapeHtml(app.name) + '</h4>' +
+          '<p class="card-desc">' + escapeHtml(app.desc || '') + '</p>' +
+        '</div>' +
+      '</article>';
+    }
+
+    function renderUpdates(updates) {
+      if (!recentUpdatesEl) return;
+      if (!updates || !updates.length) {
+        recentUpdatesEl.innerHTML = '<div style="padding:16px;color:var(--muted);text-align:center;">등록된 업데이트가 없습니다.</div>';
+        return;
+      }
+      recentUpdatesEl.innerHTML = updates.slice(0, 5).map(function(item) {
+        var tag = String(item.tag || '').toLowerCase();
+        return '<article class="update-item">' +
+          '<div class="update-top">' +
+            '<span class="update-date">' + escapeHtml(item.date || '') + '</span>' +
+            (item.tag ? '<span class="update-badge ' + escapeHtml(tag) + '">' + escapeHtml(item.tag) + '</span>' : '') +
+          '</div>' +
+          '<h3 class="update-title">' + escapeHtml(item.title || '') + '</h3>' +
+          '<p class="update-desc">' + escapeHtml(item.desc || '') + '</p>' +
+        '</article>';
+      }).join('');
+    }
+
+    function toggleFavorite(appId) {
+      if (!appId) return;
+      if (state.favorites.has(appId)) {
+        state.favorites.delete(appId);
+      } else {
+        state.favorites.add(appId);
+      }
+      saveFavorites(Array.from(state.favorites));
+      renderSections();
+      renderQuickMenu();
+      syncFavoritesUI();
+    }
+
+    function syncFavoritesUI() {
+      favoriteCountEl.textContent = state.favorites.size;
+    }
+
+    function openCard(appId) {
+      var app = state.apps.find(function(item) { return item.id === appId; });
+      if (!app) return;
+      if (!app.url || app.url === '#') {
+        showToast('연결 전', app.name + ' URL을 아직 넣지 않았습니다.');
+        return;
+      }
+      window.open(app.url, '_blank');
+    }
+
+    function getOrderedCategories() {
+      var existing = Array.from(new Set(state.apps.map(function(app) { return app.category; })));
+      var preferred = ['IB', 'VAS', 'OB', 'FG', '관리'];
+      var ordered = preferred.filter(function(c) { return existing.indexOf(c) > -1; });
+      existing.forEach(function(c) { if (ordered.indexOf(c) === -1) ordered.push(c); });
+      return ordered;
+    }
+
+    function groupAppsByCategory(apps) {
+      return apps.reduce(function(acc, app) {
+        var key = app.category || '기타';
+        if (!acc[key]) acc[key] = [];
+        acc[key].push(app);
+        return acc;
+      }, {});
+    }
+
+    function getSectionId(category) {
+      return 'section-' + String(category).toLowerCase().replace(/\s+/g, '-').replace(/[^\w가-힣-]/g, '');
+    }
+
+    function openSidebar() { sidebar.classList.add('show'); overlay.classList.add('show'); }
+    function closeSidebar() { sidebar.classList.remove('show'); overlay.classList.remove('show'); }
+
+    function showToast(title, message) {
+      var wrap = document.getElementById('toastWrap');
+      var toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.innerHTML = '<strong>' + escapeHtml(title) + '</strong><span>' + escapeHtml(message) + '</span>';
+      wrap.appendChild(toast);
+      setTimeout(function() {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(10px)';
+        setTimeout(function() { toast.remove(); }, 220);
+      }, 2200);
+    }
+
+    function loadFavorites() {
+      try {
+        var raw = localStorage.getItem('portal-favorites');
+        var parsed = raw ? JSON.parse(raw) : [];
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (e) { return []; }
+    }
+
+    function saveFavorites(list) {
+      try { localStorage.setItem('portal-favorites', JSON.stringify(list)); } catch (e) {}
+    }
+
+    function escapeHtml(value) {
+      return String(value == null ? '' : value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    init();
+  </script>
+</body>
+</html>
