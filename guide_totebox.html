@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Totebox 관리 RPA - Guide</title>
+<base target="_top">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    background: #f0f2f7; color: #1e2535; line-height: 1.6;
+  }
+  .container { max-width: 880px; margin: 0 auto; padding: 32px 20px 64px; }
+  header {
+    text-align: center; padding: 36px 20px 28px;
+    background: #D45800; color: white; border-radius: 12px; margin-bottom: 32px;
+  }
+  header h1 { font-size: 26px; font-weight: 700; margin-bottom: 8px; }
+  header p { font-size: 14px; opacity: 0.9; margin-bottom: 16px; }
+  .schedule-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.2); border-radius: 20px;
+    padding: 6px 16px; font-size: 14px; font-weight: 600;
+  }
+  .lang-block {
+    background: #fff; border-radius: 14px; margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow: hidden;
+  }
+  .lang-block > summary {
+    list-style: none; cursor: pointer; padding: 18px 28px;
+    display: flex; align-items: center; gap: 12px; user-select: none;
+    border-left: 5px solid transparent;
+  }
+  .lang-block > summary::-webkit-details-marker { display: none; }
+  .lang-block.ko > summary { border-left-color: #D45800; }
+  .lang-block.en > summary { border-left-color: #a84000; }
+  .lang-block > summary h2 { font-size: 18px; font-weight: 700; color: #1A0A36; flex: 1; margin: 0; display: flex; align-items: center; gap: 10px; }
+  .lang-block > summary .flag { font-size: 22px; }
+  .lang-block > summary .chev { font-size: 12px; color: #a0aab8; transition: transform 0.2s; }
+  .lang-block[open] > summary .chev { transform: rotate(180deg); }
+  .lang-block[open] > summary { border-bottom: 1.5px solid #e6eaf2; }
+  .lang-body { padding: 20px 24px 24px; background: #f7f8fc; }
+  .section-wrap {
+    background: #fff; border-radius: 10px; margin-bottom: 14px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05); overflow: hidden;
+  }
+  .section-wrap > summary {
+    list-style: none; cursor: pointer; padding: 16px 24px;
+    display: flex; align-items: center; gap: 10px; user-select: none;
+  }
+  .section-wrap > summary::-webkit-details-marker { display: none; }
+  .section-wrap > summary h3 { font-size: 15px; font-weight: 700; color: #1A0A36; flex: 1; margin: 0; display: flex; align-items: center; gap: 8px; }
+  .section-wrap > summary .ico { font-size: 18px; }
+  .section-wrap > summary .chev { font-size: 11px; color: #a0aab8; transition: transform 0.2s; }
+  .section-wrap[open] > summary .chev { transform: rotate(180deg); }
+  .section-wrap[open] > summary { border-bottom: 1px solid #e6eaf2; }
+  .section-body { padding: 20px 24px 24px; }
+  .step { display: flex; gap: 16px; margin-bottom: 22px; padding-bottom: 22px; border-bottom: 1px dashed #e3e8f0; }
+  .step:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+  .step-num {
+    flex-shrink: 0; width: 32px; height: 32px; background: #1A0A36; color: #fff;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 13px; margin-top: 2px;
+  }
+  .step-content { flex: 1; min-width: 0; }
+  .step-content h4 { font-size: 14px; font-weight: 700; color: #1A0A36; margin-bottom: 6px; }
+  .step-content p { font-size: 14px; color: #4a5568; margin-bottom: 8px; line-height: 1.7; }
+  .step-content p:last-child { margin-bottom: 0; }
+  .note { background: #fff8e1; border-left: 3px solid #f5a623; padding: 9px 13px; margin-top: 8px; border-radius: 0 6px 6px 0; font-size: 13.5px; color: #6b4a08; }
+  .note strong { color: #a36804; }
+  .tip { background: #edf7ed; border-left: 3px solid #52b152; padding: 9px 13px; margin-top: 8px; border-radius: 0 6px 6px 0; font-size: 13.5px; color: #275427; }
+  .tip strong { color: #1d6b1d; }
+  .item-list { list-style: none; margin: 8px 0; }
+  .item-list li { padding: 7px 0 7px 16px; border-bottom: 1px solid #eff2f8; font-size: 14px; color: #4a5568; position: relative; }
+  .item-list li::before { content: "•"; position: absolute; left: 0; color: #D45800; font-weight: bold; }
+  .item-list li:last-child { border-bottom: none; }
+
+  /* Email mockup */
+  .email-mock { border: 1px solid #d0d7e4; border-radius: 10px; overflow: hidden; margin-top: 4px; font-size: 13px; }
+  .email-topbar { background: #e8ecf4; padding: 10px 16px; border-bottom: 1px solid #d0d7e4; }
+  .email-topbar .subject { font-weight: 700; font-size: 14px; color: #1a2035; margin-bottom: 6px; }
+  .email-topbar .meta { font-size: 12px; color: #666; line-height: 1.8; }
+  .email-topbar .meta b { color: #444; min-width: 52px; display: inline-block; }
+  .email-body-wrap { padding: 18px 20px; background: #fff; overflow-x: auto; }
+  .email-body-wrap p { font-size: 13px; color: #333; margin-bottom: 8px; line-height: 1.6; }
+  .email-do-not-reply { color: red; font-weight: bold; font-size: 13px; margin-bottom: 10px; }
+
+  /* Excess stock table */
+  .excess-table { border-collapse: collapse; font-size: 12px; margin: 10px 0; }
+  .excess-table th { background: #1F3864; color: white; padding: 6px 12px; border: 1px solid #bbb; text-align: center; white-space: nowrap; }
+  .excess-table th.trailer-h { background: #C00000; }
+  .excess-table td { padding: 5px 12px; border: 1px solid #ddd; white-space: nowrap; }
+  .excess-table .box-yellow { background: #FFFFCB; }
+  .excess-table .box-blue { background: #D8E8F5; }
+  .excess-table .box-steel { background: #ABCAE7; }
+  .excess-table .trailer-cell { background: #FCE4E4; color: #C00000; font-weight: bold; text-align: right; }
+  .excess-table .trailer-zero { text-align: right; }
+  .excess-table .total-row { background: #C00000; color: white; font-weight: bold; }
+  .excess-table .total-row td { border: 1px solid #C00000; text-align: right; }
+  .excess-table .num { text-align: right; }
+
+  /* Histogram placeholder */
+  .hist-placeholder {
+    background: #f5f5f5; border: 1px dashed #ccc; border-radius: 6px;
+    padding: 16px; margin: 10px 0; text-align: center; color: #888; font-size: 13px;
+  }
+  .hist-placeholder svg { display: block; margin: 0 auto 8px; }
+
+  footer { text-align: center; margin-top: 36px; color: #8a94a6; font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>📦 Totebox 관리 RPA</h1>
+  <p>PWS/MI 공장 토트박스 초과재고 산출 및 담당자 이메일 발송</p>
+  <div class="schedule-badge">🕐 매일 오전 6:00 자동 실행</div>
+</header>
+
+<!-- KOREAN -->
+<details class="lang-block ko" open>
+<summary><span class="flag">🇰🇷</span><h2>한국어 설명</h2><span class="chev">▼</span></summary>
+<div class="lang-body">
+
+  <details class="section-wrap" open>
+  <summary><h3><span class="ico">📖</span> 어떤 일을 하나요?</h3><span class="chev">▼</span></summary>
+  <div class="section-body">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h4>WMS 자동 로그인 및 토트박스 현황 다운로드</h4>
+        <p>컴퓨터가 창고관리시스템(WMS)에 접속해 Tote Management 메뉴에서 현재 토트박스 전체 목록을 가져옵니다.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h4>공장별 분류 (PWS / MI)</h4>
+        <p>각 토트박스가 어느 공장(PWS 또는 MI)에 속하는지, 어떤 자재인지를 자동으로 구분합니다. 현재 공장 안에 있고 사용 가능 상태인 토트박스만 분석합니다.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h4>안전재고 초과 물량 산출</h4>
+        <p>자재별로 보유량에서 며칠치 안전재고에 해당하는 수를 빼 초과 수량을 계산합니다. 초과분은 파레트(PLT) 수와 트레일러 대수로도 자동 환산됩니다.</p>
+        <ul class="item-list">
+          <li>PWS 공장 — 안전재고 3.5일치</li>
+          <li>MI 공장 — 안전재고 3.25일치</li>
+        </ul>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <h4>공장 체류일 분포 그래프</h4>
+        <p>토트박스가 며칠째 공장에 머물고 있는지 막대 그래프로 시각화합니다. 30일 이상 체류 중인 토트 수와 가장 오래된 체류일도 강조 표시됩니다.</p>
+        <div class="note"><strong>⚠️ 30일 이상 체류 토트:</strong> 먼저 들어온 것부터 먼저 써야 하는 원칙(선입선출)이 지켜지지 않고 있다는 신호입니다.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-content">
+        <h4>Outlook 이메일 발송</h4>
+        <p>두 공장(PWS, MI)의 분석 결과를 하나의 이메일에 담아 발송합니다. 공장별 엑셀 파일도 함께 첨부됩니다.</p>
+        <div class="tip"><strong>💡 공장별 파일 분리:</strong> PWS와 MI 데이터는 별도 파일로 첨부되어 서로의 데이터가 노출되지 않습니다.</div>
+      </div>
+    </div>
+  </div>
+  </details>
+
+  <details class="section-wrap" open>
+  <summary><h3><span class="ico">📧</span> 실제 이메일 예시</h3><span class="chev">▼</span></summary>
+  <div class="section-body">
+    <div class="email-mock">
+      <div class="email-topbar">
+        <div class="subject">[06/25/2026] PWS/MI 토트박스 회수 현황</div>
+        <div class="meta">
+          <b>보낸 사람</b> Outlook (회사 이메일)<br>
+          <b>받는 사람</b> yongki.hong, raehaun.lee, andrew.ahn, minwook.kim, eva.salas, rudy.johnson, seung.han<br>
+          <b>참조(CC)</b> Justin.choi &nbsp;|&nbsp; 📎 Summary_PWS_20260625.xlsx &nbsp; 📎 Summary_MI_20260625.xlsx
+        </div>
+      </div>
+      <div class="email-body-wrap">
+        <p>안녕하세요,</p>
+        <p>금일 기준 <strong>PWS</strong> 공장 Empty Tote 현황 공유드립니다. (안전재고 3.5일 기준)</p>
+        <p style="font-size:13px; font-weight:700; color:#1F3864; margin:14px 0 6px;">■ PWS &nbsp;|&nbsp; ① 초과재고 — 긴급 회수 요청</p>
+        <table class="excess-table">
+          <thead>
+            <tr>
+              <th colspan="4" style="text-align:left; font-size:14px;">
+                <span style="background:#E8A202; color:#fff; padding:2px 7px; border-radius:3px; margin-right:6px; font-size:13px;">①</span>
+                초과재고 — 긴급 회수 요청
+                <span style="float:right; font-size:11px; color:#FFFF00;">06/25/2026 06:01 &nbsp;|&nbsp; 안전재고 3.5일 기준</span>
+              </th>
+            </tr>
+            <tr>
+              <th>SUPPLIER</th><th>Material</th><th>BOX</th><th>초과 Tote</th><th>PLT</th><th class="trailer-h">Trailer</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>SEA / FINEMTEC</td><td>END PLATE</td><td class="box-blue">BLUE</td><td class="num">0</td><td class="num">0.00</td><td class="trailer-zero">0.00</td></tr>
+            <tr><td>LSEVK</td><td>BUSBAR RD</td><td class="box-blue">BLUE</td><td class="num">312</td><td class="num">39.00</td><td class="trailer-cell">1.50</td></tr>
+            <tr><td>LSEVK</td><td>BUSBAR LD</td><td class="box-blue">BLUE</td><td class="num">248</td><td class="num">31.00</td><td class="trailer-cell">1.19</td></tr>
+            <tr><td>BOBAEK</td><td>PU PAD</td><td class="box-yellow">YELLOW</td><td class="num">0</td><td class="num">0.00</td><td class="trailer-zero">0.00</td></tr>
+            <tr><td>AM-TEC/DY/LGC</td><td>AeroGel/ThuBarrier/InsulPad</td><td class="box-yellow">YELLOW</td><td class="num">560</td><td class="num">70.00</td><td class="trailer-cell">2.69</td></tr>
+            <tr style="color:#aaa; font-style:italic;"><td colspan="6" style="text-align:center; padding:4px; font-size:12px;">... 나머지 자재 ...</td></tr>
+            <tr class="total-row"><td colspan="5" style="padding:7px 12px;">TOTAL Trailer QTY &nbsp;<span style="font-size:11px; font-weight:normal;">(초과 1,220 totes)</span></td><td>5.38</td></tr>
+          </tbody>
+        </table>
+
+        <p style="font-size:13px; font-weight:700; color:#7B3306; margin:20px 0 6px;">② 선입선출(FIFO) 현황 — 공장 체류일 분포</p>
+        <div class="hist-placeholder">
+          <svg width="480" height="120" viewBox="0 0 480 120">
+            <rect x="10"  y="20" width="40" height="90" fill="#639922"/>
+            <rect x="60"  y="50" width="40" height="60" fill="#EF9F27"/>
+            <rect x="110" y="65" width="40" height="45" fill="#EF9F27"/>
+            <rect x="160" y="80" width="40" height="30" fill="#D85A30"/>
+            <rect x="210" y="90" width="40" height="20" fill="#D85A30"/>
+            <rect x="260" y="98" width="40" height="12" fill="#E24B4A"/>
+            <rect x="310" y="104" width="40" height="6"  fill="#C03030"/>
+            <rect x="360" y="108" width="40" height="2"  fill="#8B0000"/>
+            <text x="30"  y="118" text-anchor="middle" font-size="9" fill="#555">0-3.5일</text>
+            <text x="80"  y="118" text-anchor="middle" font-size="9" fill="#555">3.5-7일</text>
+            <text x="130" y="118" text-anchor="middle" font-size="9" fill="#555">7-14일</text>
+            <text x="180" y="118" text-anchor="middle" font-size="9" fill="#555">14-21일</text>
+            <text x="230" y="118" text-anchor="middle" font-size="9" fill="#555">21-30일</text>
+            <text x="280" y="118" text-anchor="middle" font-size="9" fill="#555">30-45일</text>
+            <text x="330" y="118" text-anchor="middle" font-size="9" fill="#555">45-60일</text>
+            <text x="380" y="118" text-anchor="middle" font-size="9" fill="#555">60-90일</text>
+            <text x="30"  y="15"  text-anchor="middle" font-size="9" fill="#333">1,840</text>
+            <text x="80"  y="45"  text-anchor="middle" font-size="9" fill="#333">1,120</text>
+            <text x="130" y="60"  text-anchor="middle" font-size="9" fill="#333">780</text>
+            <text x="180" y="75"  text-anchor="middle" font-size="9" fill="#333">432</text>
+            <text x="230" y="85"  text-anchor="middle" font-size="9" fill="#333">256</text>
+            <text x="260" y="93"  text-anchor="middle" font-size="9" fill="#333">148</text>
+            <text x="310" y="99"  text-anchor="middle" font-size="9" fill="#333">64</text>
+            <text x="360" y="103" text-anchor="middle" font-size="9" fill="#333">18</text>
+          </svg>
+          <span style="font-size:12px;">↑ 이메일 본문에 이 그래프가 이미지로 포함됩니다</span>
+        </div>
+        <p style="font-size:12px; color:#595959;">선입선출 기준으로 PWS 공장 내 토트 체류일 분포입니다. 현재 30일 넘게 체류 중인 토트가 <strong style="color:#C00000;">230개</strong>, 최장 <strong>68일</strong>째입니다.</p>
+        <br>
+        <p>※ 상세 데이터는 첨부 엑셀 파일을 참고 부탁드립니다.</p>
+      </div>
+    </div>
+  </div>
+  </details>
+
+</div>
+</details>
+
+<!-- ENGLISH -->
+<details class="lang-block en">
+<summary><span class="flag">🇺🇸</span><h2>English Guide</h2><span class="chev">▼</span></summary>
+<div class="lang-body">
+
+  <details class="section-wrap" open>
+  <summary><h3><span class="ico">📖</span> What it does</h3><span class="chev">▼</span></summary>
+  <div class="section-body">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h4>WMS Login & Tote Data Download</h4>
+        <p>The computer signs into the warehouse management system (WMS) on its own, opens the Tote Management screen, and downloads the full list of totes.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h4>Tote Sort by Plant (PWS / MI)</h4>
+        <p>Figures out which plant each tote belongs to (PWS or MI) and what material it holds. Only totes currently inside a plant and available for use are included.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h4>Excess Stock Calculation</h4>
+        <p>For each material, subtracts the safety stock amount from what's on hand. Excess is converted automatically into pallet and trailer counts.</p>
+        <ul class="item-list">
+          <li>PWS plant — safety stock set at 3.5 days' worth</li>
+          <li>MI plant — safety stock set at 3.25 days' worth</li>
+        </ul>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <h4>Tote Age Distribution Chart</h4>
+        <p>Generates a bar chart showing tote age distribution. Totes over 30 days are flagged as warning signs.</p>
+        <div class="note"><strong>⚠️ Totes over 30 days:</strong> This signals that the first-in-first-out (FIFO) rule is not being followed.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-content">
+        <h4>Report Delivery via Outlook</h4>
+        <p>Combines both plants' results into a single email with excess stock tables and age charts, plus a separate Excel file attached for each plant.</p>
+        <div class="tip"><strong>💡 Plant data is kept separate:</strong> PWS and MI files are attached independently so neither plant sees the other's numbers.</div>
+      </div>
+    </div>
+  </div>
+  </details>
+
+  <details class="section-wrap" open>
+  <summary><h3><span class="ico">📧</span> Sample email</h3><span class="chev">▼</span></summary>
+  <div class="section-body">
+    <div class="email-mock">
+      <div class="email-topbar">
+        <div class="subject">[06/25/2026] PWS/MI 토트박스 회수 현황</div>
+        <div class="meta">
+          <b>From</b> Outlook (company email)<br>
+          <b>To</b> yongki.hong, raehaun.lee, andrew.ahn, minwook.kim, eva.salas, rudy.johnson, seung.han<br>
+          <b>CC</b> Justin.choi &nbsp;|&nbsp; 📎 Summary_PWS_20260625.xlsx &nbsp; 📎 Summary_MI_20260625.xlsx
+        </div>
+      </div>
+      <div class="email-body-wrap">
+        <p>안녕하세요,</p>
+        <p>금일 기준 <strong>PWS</strong> 공장 Empty Tote 현황 공유드립니다. (안전재고 3.5일 기준)</p>
+        <p style="font-size:13px; font-weight:700; color:#1F3864; margin:14px 0 6px;">■ PWS &nbsp;|&nbsp; ① Excess Stock — Urgent Retrieval Requested</p>
+        <table class="excess-table">
+          <thead>
+            <tr><th>SUPPLIER</th><th>Material</th><th>BOX</th><th>Excess Totes</th><th>PLT</th><th class="trailer-h">Trailer</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>SEA / FINEMTEC</td><td>END PLATE</td><td class="box-blue">BLUE</td><td class="num">0</td><td class="num">0.00</td><td class="trailer-zero">0.00</td></tr>
+            <tr><td>LSEVK</td><td>BUSBAR RD</td><td class="box-blue">BLUE</td><td class="num">312</td><td class="num">39.00</td><td class="trailer-cell">1.50</td></tr>
+            <tr><td>LSEVK</td><td>BUSBAR LD</td><td class="box-blue">BLUE</td><td class="num">248</td><td class="num">31.00</td><td class="trailer-cell">1.19</td></tr>
+            <tr><td>AM-TEC/DY/LGC</td><td>AeroGel/ThuBarrier/InsulPad</td><td class="box-yellow">YELLOW</td><td class="num">560</td><td class="num">70.00</td><td class="trailer-cell">2.69</td></tr>
+            <tr style="color:#aaa; font-style:italic;"><td colspan="6" style="text-align:center; padding:4px; font-size:12px;">... other materials ...</td></tr>
+            <tr class="total-row"><td colspan="5" style="padding:7px 12px;">TOTAL Trailer QTY &nbsp;<span style="font-size:11px; font-weight:normal;">(1,220 excess totes)</span></td><td>5.38</td></tr>
+          </tbody>
+        </table>
+        <p style="font-size:13px; font-weight:700; color:#7B3306; margin:20px 0 6px;">② FIFO Status — Days in Factory Distribution</p>
+        <div class="hist-placeholder">
+          <svg width="480" height="120" viewBox="0 0 480 120">
+            <rect x="10"  y="20" width="40" height="90" fill="#639922"/>
+            <rect x="60"  y="50" width="40" height="60" fill="#EF9F27"/>
+            <rect x="110" y="65" width="40" height="45" fill="#EF9F27"/>
+            <rect x="160" y="80" width="40" height="30" fill="#D85A30"/>
+            <rect x="210" y="90" width="40" height="20" fill="#D85A30"/>
+            <rect x="260" y="98" width="40" height="12" fill="#E24B4A"/>
+            <rect x="310" y="104" width="40" height="6"  fill="#C03030"/>
+            <rect x="360" y="108" width="40" height="2"  fill="#8B0000"/>
+            <text x="30"  y="118" text-anchor="middle" font-size="9" fill="#555">0-3.5d</text>
+            <text x="80"  y="118" text-anchor="middle" font-size="9" fill="#555">3.5-7d</text>
+            <text x="130" y="118" text-anchor="middle" font-size="9" fill="#555">7-14d</text>
+            <text x="180" y="118" text-anchor="middle" font-size="9" fill="#555">14-21d</text>
+            <text x="230" y="118" text-anchor="middle" font-size="9" fill="#555">21-30d</text>
+            <text x="280" y="118" text-anchor="middle" font-size="9" fill="#555">30-45d</text>
+            <text x="330" y="118" text-anchor="middle" font-size="9" fill="#555">45-60d</text>
+            <text x="380" y="118" text-anchor="middle" font-size="9" fill="#555">60-90d</text>
+            <text x="30"  y="15"  text-anchor="middle" font-size="9" fill="#333">1,840</text>
+            <text x="80"  y="45"  text-anchor="middle" font-size="9" fill="#333">1,120</text>
+            <text x="130" y="60"  text-anchor="middle" font-size="9" fill="#333">780</text>
+            <text x="180" y="75"  text-anchor="middle" font-size="9" fill="#333">432</text>
+            <text x="230" y="85"  text-anchor="middle" font-size="9" fill="#333">256</text>
+            <text x="260" y="93"  text-anchor="middle" font-size="9" fill="#333">148</text>
+            <text x="310" y="99"  text-anchor="middle" font-size="9" fill="#333">64</text>
+            <text x="360" y="103" text-anchor="middle" font-size="9" fill="#333">18</text>
+          </svg>
+          <span style="font-size:12px;">↑ This chart is embedded as an image in the email body</span>
+        </div>
+        <p style="font-size:12px; color:#595959;">PWS factory tote age distribution (FIFO basis). Currently <strong style="color:#C00000;">230 totes</strong> have been in the factory for over 30 days, with the oldest at <strong>68 days</strong>.</p>
+      </div>
+    </div>
+  </div>
+  </details>
+
+</div>
+</details>
+
+<footer>Questions or issues? Contact your administrator.</footer>
+</div>
+</body>
+</html>

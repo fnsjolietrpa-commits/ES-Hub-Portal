@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NERP Unboxing Automation - User Guide</title>
+<base target="_top">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    background: #f0f2f7; color: #1e2535; line-height: 1.6;
+  }
+  .container { max-width: 880px; margin: 0 auto; padding: 32px 20px 64px; }
+
+  /* ── Header (banner colors match guide-qclabel_yellow.html) ── */
+  header {
+    text-align: center; padding: 40px 20px 32px;
+    background: linear-gradient(135deg, #1a5c2a 0%, #2e8b47 100%);
+    color: white; border-radius: 12px; margin-bottom: 32px;
+  }
+  header h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.5px; }
+  header p { font-size: 15px; opacity: 0.9; }
+
+  /* ── Download button ── */
+  .dl-wrap { text-align: center; margin: 24px 0 32px; }
+  .dl-btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 14px 34px; background: #1655c0; color: #fff;
+    text-decoration: none; border-radius: 9px; font-size: 15px; font-weight: 600;
+    box-shadow: 0 4px 16px rgba(22,85,192,0.32); transition: background 0.18s, transform 0.15s;
+  }
+  .dl-btn:hover { background: #1145a6; transform: translateY(-1px); }
+  .dl-btn .meta { font-size: 12px; font-weight: 400; opacity: 0.8; }
+
+  /* ── Outer language accordion ── */
+  .lang-block {
+    background: #fff; border-radius: 14px; margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow: hidden;
+  }
+  .lang-block > summary {
+    list-style: none; cursor: pointer; padding: 18px 28px;
+    display: flex; align-items: center; gap: 12px; user-select: none;
+    border-left: 5px solid transparent;
+  }
+  .lang-block > summary::-webkit-details-marker { display: none; }
+  .lang-block.ko > summary { border-left-color: #1655c0; }
+  .lang-block.en > summary { border-left-color: #2d8a4e; }
+  .lang-block > summary h2 {
+    font-size: 18px; font-weight: 700; color: #1A0A36;
+    flex: 1; margin: 0; display: flex; align-items: center; gap: 10px;
+  }
+  .lang-block > summary .flag { font-size: 22px; }
+  .lang-block > summary .chev { font-size: 12px; color: #a0aab8; transition: transform 0.2s; }
+  .lang-block[open] > summary .chev { transform: rotate(180deg); }
+  .lang-block[open] > summary { border-bottom: 1.5px solid #e6eaf2; }
+  .lang-body { padding: 20px 24px 24px; background: #f7f8fc; }
+
+  /* ── Inner section accordion ── */
+  .section-wrap {
+    background: #fff; border-radius: 10px; margin-bottom: 14px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05); overflow: hidden;
+  }
+  .section-wrap > summary {
+    list-style: none; cursor: pointer; padding: 16px 24px;
+    display: flex; align-items: center; gap: 10px; user-select: none;
+  }
+  .section-wrap > summary::-webkit-details-marker { display: none; }
+  .section-wrap > summary h3 {
+    font-size: 15px; font-weight: 700; color: #1A0A36;
+    flex: 1; margin: 0; display: flex; align-items: center; gap: 8px;
+  }
+  .section-wrap > summary .ico { font-size: 18px; }
+  .section-wrap > summary .chev { font-size: 11px; color: #a0aab8; transition: transform 0.2s; }
+  .section-wrap[open] > summary .chev { transform: rotate(180deg); }
+  .section-wrap[open] > summary { border-bottom: 1px solid #e6eaf2; }
+  .section-body { padding: 20px 24px 24px; }
+
+  /* ── Steps ── */
+  .step { display: flex; gap: 16px; margin-bottom: 28px; padding-bottom: 28px; border-bottom: 1px dashed #e3e8f0; }
+  .step:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+  .step-num {
+    flex-shrink: 0; width: 32px; height: 32px; background: #1A0A36; color: #fff;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 13px; margin-top: 1px;
+  }
+  .step-content { flex: 1; min-width: 0; line-height: 1.7; }
+  .step-content h4 { font-size: 14px; font-weight: 700; color: #1A0A36; margin-bottom: 5px; }
+  .step-content p { font-size: 13.5px; color: #4a5568; margin-bottom: 14px; }
+  .step-content p:last-child { margin-bottom: 0; }
+
+  /* ── Callouts ── */
+  .note {
+    background: #fff8e1; border-left: 3px solid #f5a623;
+    padding: 11px 15px; margin: 14px 0; border-radius: 0 6px 6px 0;
+    font-size: 13px; color: #6b4a08;
+  }
+  .note strong { color: #a36804; }
+  .tip {
+    background: #edf7ed; border-left: 3px solid #52b152;
+    padding: 11px 15px; margin: 14px 0; border-radius: 0 6px 6px 0;
+    font-size: 13px; color: #275427;
+  }
+  .tip strong { color: #1d6b1d; }
+  .danger {
+    background: #fdecea; border-left: 3px solid #e53935;
+    padding: 11px 15px; margin: 14px 0; border-radius: 0 6px 6px 0;
+    font-size: 13px; color: #7a1f16;
+  }
+  .danger strong { color: #c0392b; }
+  .note:last-child, .tip:last-child, .danger:last-child { margin-bottom: 0; }
+
+  /* ── Field list ── */
+  .field-list { list-style: none; margin: 8px 0; }
+  .field-list li {
+    padding: 7px 0; border-bottom: 1px solid #eff2f8;
+    font-size: 13.5px; color: #4a5568; display: flex; gap: 10px; align-items: baseline;
+  }
+  .field-list li:last-child { border-bottom: none; }
+  .field-list .key {
+    color: #1A0A36; font-weight: 600; font-family: "Consolas","Monaco",monospace;
+    font-size: 12.5px; min-width: 130px; flex-shrink: 0;
+  }
+
+  code {
+    background: #f2f4f8; padding: 2px 6px; border-radius: 4px;
+    font-family: "Consolas","Monaco",monospace; font-size: 12px; color: #b5185c;
+  }
+
+  /* ── Status legend ── */
+  .status-grid { display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 10px; }
+  .status-row {
+    display: flex; gap: 10px; align-items: baseline; padding: 8px 12px;
+    background: #f7f9fd; border: 1px solid #dde4f0; border-radius: 8px;
+  }
+  .status-row.danger-row { background: #fdecea; border-color: #f1a9a0; }
+  .status-pill {
+    flex-shrink: 0; min-width: 96px; text-align: center; padding: 3px 8px; border-radius: 6px;
+    font-family: "Consolas","Monaco",monospace; font-size: 11.5px; font-weight: 700;
+  }
+  .status-pill.success { background: #e2efda; color: #1e7b1e; }
+  .status-pill.already { background: #e3edf7; color: #1655c0; }
+  .status-pill.failed { background: #f1f3f5; color: #495057; }
+  .status-pill.unverified { background: #fff3cd; color: #8a6414; }
+  .status-pill.error { background: #e53935; color: #fff; }
+  .status-row p { font-size: 13px; color: #4a5568; }
+
+  /* ── Console mockup (LogWindow text) ── */
+  .console {
+    background: #1a1d27; border-radius: 8px; padding: 14px 16px; margin-top: 10px;
+    font-family: "Consolas","Monaco",monospace; font-size: 12px; line-height: 1.7;
+    overflow-x: auto;
+  }
+  .console .c-head { color: #6ee7b7; }
+  .console .c-info { color: #93c5fd; }
+  .console .c-ok   { color: #86efac; }
+  .console .c-warn { color: #fde68a; }
+  .console .c-dim  { color: #6b7a99; }
+  .console .c-path { color: #c4b5fd; }
+
+  /* ── Mock dialog card (approximates our PyQt6 popups) ── */
+  .dialog-mock {
+    border: 1.5px solid #dde3ed; border-radius: 10px; overflow: hidden;
+    margin: 16px 0 20px; max-width: 420px; box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  }
+  .dialog-mock .dm-title {
+    background: #0B3D2E; color: #fff; font-size: 12px; font-weight: 600; padding: 10px 16px;
+  }
+  .dialog-mock .dm-body { background: #fff; padding: 18px 18px 16px; }
+  .dialog-mock .dm-body p { font-size: 12.5px; color: #333; line-height: 1.8; margin-bottom: 16px; white-space: pre-line; }
+  .dialog-mock .dm-buttons { display: flex; gap: 10px; justify-content: flex-end; }
+  .dialog-mock .dm-btn {
+    padding: 7px 18px; border-radius: 6px; font-size: 12px; font-weight: 600;
+  }
+  .dialog-mock .dm-btn.primary { background: #43A047; color: #fff; }
+  .dialog-mock .dm-btn.secondary { background: #F1F3F5; color: #495057; }
+
+  /* ── Excel mockup tables (approximate the actual request/review file formatting) ── */
+  .xl-mock {
+    border: 1.5px solid #dde3ed; border-radius: 8px; overflow: hidden;
+    margin: 16px 0 20px; max-width: 460px; box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  }
+  .xl-mock table { border-collapse: collapse; width: 100%; font-size: 12.5px; }
+  .xl-mock th {
+    background: #1F4E79; color: #fff; font-weight: 700; padding: 10px 14px; text-align: center;
+    white-space: nowrap;
+  }
+  .xl-mock td {
+    padding: 10px 14px; border-top: 1px solid #eef1f6; text-align: center; color: #333; background: #fff;
+  }
+  .xl-mock td.input-cell { background: #FFF2CC; color: #0000FF; font-weight: 700; }
+  .xl-mock td.left { text-align: left; }
+  .xl-mock .xl-caption {
+    font-size: 11.5px; color: #6b7a99; padding: 10px 14px; background: #f7f9fd; border-top: 1px solid #eef1f6;
+    line-height: 1.5;
+  }
+  .xl-mock td.o-mark { font-weight: 700; color: #1e7b1e; font-size: 14px; }
+  .xl-mock tr.moved td { background: #fff8e1; }
+  .xl-mock tr.moved td.o-mark { color: #a36804; }
+
+  footer { text-align: center; margin-top: 36px; color: #8a94a6; font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>📦 NERP Unboxing Automation</h1>
+  <p>NERP 팔렛 언박싱</p>
+</header>
+
+<div class="dl-wrap">
+  <a href="https://fnsul.sharepoint.com/:f:/r/sites/FNSChicagoHub/Shared%20Documents/RPA/NERP%20Unboxing?csf=1&web=1&e=MZpupi"
+     class="dl-btn" target="_blank">
+    &#128190; 다운로드 / Download (SharePoint)
+    <span class="meta">NERP_Unboxing_LIVE_DELETE.zip</span>
+  </a>
+</div>
+
+
+<!-- ═══════════════════════════
+     KOREAN VERSION
+     ═══════════════════════════ -->
+<details class="lang-block ko" open>
+<summary>
+  <span class="flag">🇰🇷</span>
+  <h2>한국어 가이드</h2>
+  <span class="chev">▼</span>
+</summary>
+<div class="lang-body">
+
+  <!-- 설치 -->
+  <details class="section-wrap">
+  <summary>
+    <h3><span class="ico">⬇️</span> 설치 (최초 1회)</h3>
+    <span class="chev">▼</span>
+  </summary>
+  <div class="section-body">
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h4>위 다운로드 버튼 클릭</h4>
+        <p>회사 SharePoint 페이지로 이동해 <code>NERP_Unboxing_LIVE_DELETE.zip</code>을 받습니다.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h4>작업 폴더에 압축 해제</h4>
+        <p>이 exe를 실행하는 폴더가 그대로 "작업 폴더"가 되어, 요청서/검토서/결과 파일이 전부 이 폴더에 쌓입니다. 공유 드라이브 등 고정된 폴더에 압축을 풀어두고 매번 그 폴더에서 실행하세요.</p>
+        <div class="note">
+          <strong>⚠️ 중요:</strong> 폴더 안의 <code>_internal</code>, <code>ms-playwright</code> 폴더와 <code>NERP_Unboxing_LIVE_DELETE.exe</code> 파일이 <strong>항상 함께</strong> 있어야 합니다. exe 파일만 따로 복사하면 실행되지 않습니다.
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h4>처음 실행 시 Windows 보안 경고</h4>
+        <p>처음 실행하면 파란 SmartScreen 경고 화면이 뜰 수 있습니다. 코드 서명 인증서가 없는 EXE에는 항상 나타나며 정상입니다. <strong>"More info"</strong> 클릭 → <strong>"Run anyway"</strong> 클릭.</p>
+        <div class="tip"><strong>💡 최초 1회만:</strong> 한 번 실행 후 이 경고는 다시 뜨지 않습니다.</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <h4>그래도 막힌다면 — 파일 차단 해제</h4>
+        <p><code>NERP_Unboxing_LIVE_DELETE.exe</code> 우클릭 → <strong>속성(Properties)</strong> → 하단 <strong>"차단 해제(Unblock)"</strong> 체크 → <strong>확인</strong> 후 다시 실행.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-content">
+        <h4>NERP 로그인</h4>
+        <p>exe를 실행하면 콘솔 창이 아니라 <strong>로그인 팝업</strong>이 바로 뜹니다. NERP ID/비밀번호를 입력하세요.</p>
+
+<div class="dialog-mock">
+  <div class="dm-title">NERP Unboxing Login</div>
+  <div class="dm-body">
+    <p>ID: [________________]
+Password: [________________]
+☑ Save ID</p>
+    <div class="dm-buttons">
+      <div class="dm-btn secondary">Cancel</div>
+      <div class="dm-btn primary">Login</div>
+    </div>
+  </div>
+</div>
+
+        <div class="tip"><strong>💡 Save ID</strong>를 체크하면 다음 실행부터 ID가 자동으로 채워집니다. <strong>비밀번호는 절대 저장되지 않습니다</strong> — 매번 입력해야 합니다.</div>
+      </div>
+    </div>
+
+  </div>
+  </details>
+
+  <!-- 사용 안내 -->
+  <details class="section-wrap" open>
+  <summary>
+    <h3><span class="ico">📖</span> 사용 안내 — 3단계 자동 흐름</h3>
+    <span class="chev">▼</span>
+  </summary>
+  <div class="section-body">
+
+    <p style="font-size:13.5px; color:#4a5568; margin-bottom:16px;">
+      exe를 한 번 실행하면 <strong>요청서 → 검토서 → 실행</strong>까지 이어서 진행됩니다. 중간에 창을 닫으면 그 자리서 멈추고, exe를 다시 실행하면 남은 파일을 보고 이어서 진행할지 물어봅니다.
+    </p>
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h4>1단계 — 요청서 (Request)</h4>
+        <p>NERP에서 로그인 후 전체 재고를 다운받습니다.</p>
+        <p>열린 엑셀에서 노란색 <strong>"Requested Pallets"</strong> 칸에 언박싱할 자재별 팔렛 수를 입력, 저장 후 엑셀을 닫아주세요.</p>
+
+<div class="xl-mock">
+  <table>
+    <tr><th>No.</th><th>Material</th><th>Available Pallets</th><th>Requested Pallets</th></tr>
+    <tr><td>1</td><td class="left">MPD00268AB</td><td>42</td><td class="input-cell">5</td></tr>
+    <tr><td>2</td><td class="left">MHU00844AB</td><td>18</td><td class="input-cell">3</td></tr>
+    <tr><td>3</td><td class="left">MPD00250AB</td><td>27</td><td></td></tr>
+  </table>
+  <div class="xl-caption">노란 칸에만 숫자를 입력 — 필요 없는 자재는 비워두면 됩니다.</div>
+</div>
+
+        <p>프로그램 창에서 <strong>Continue</strong> 버튼을 눌러주세요.</p>
+        <div class="note"><strong>이미 처리된 팔렛(Repack Status 완료)은 요청서/검토서에서 자동으로 제외됩니다.</strong></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h4>2단계 — 검토 (Review)</h4>
+        <p>자재별 추천/제외가 표시된 <code>2_Review_YYYYMMDD_HHMM.xlsx</code>가 자동으로 열립니다.</p>
+        <p>선택된 팔렛을 확인해주세요, O를 옮기시면 다른 팔렛을 선택하실 수 있습니다.</p>
+
+<div class="xl-mock">
+  <table>
+    <tr><th>Selected</th><th>Verdict</th><th>HU External ID</th></tr>
+    <tr><td class="o-mark">O</td><td class="left">Recommended</td><td class="left">...26311001</td></tr>
+    <tr class="moved"><td class="o-mark">O</td><td class="left">Swappable</td><td class="left">...26311003</td></tr>
+    <tr><td></td><td class="left">Recommended</td><td class="left">...26311002</td></tr>
+  </table>
+  <div class="xl-caption">O 표시를 다른 행으로 옮기면 그 팔렛이 대신 선택됩니다.</div>
+</div>
+
+        <p>저장 후 엑셀을 닫고 프로그램 창에서 <strong>Continue</strong> 버튼을 눌러주세요. (팔렛 수량 변경이 필요한 경우 <strong>Edit pallet count</strong>를 누르시면 다시 2단계부터 진행됩니다.)</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h4>3단계 — 실행 (Execute) ⚠️ 실제 삭제</h4>
+        <p>자재별 팔렛 수/총 수량이 표시된 최종 확인 팝업이 뜹니다.</p>
+
+<div class="dialog-mock">
+  <div class="dm-title">Confirm</div>
+  <div class="dm-body">
+    <p>MPD00268AB: 5 pallets, 840 EA
+
+Total quantity: 840 EA
+
+Proceed with execution? (y/N):</p>
+    <div class="dm-buttons">
+      <div class="dm-btn primary">Yes</div>
+      <div class="dm-btn secondary">No</div>
+    </div>
+  </div>
+</div>
+
+        <p>Yes를 누르면 NERP에 다시 로그인해 자재별로 실제 <strong>Delete Box Data</strong>를 실행합니다.</p>
+        <p>실행 후 결과를 엑셀로 보여줍니다.</p>
+        <div class="danger"><strong>⚠️ Yes를 누른 뒤에는 취소할 수 없습니다.</strong> NERP에서 실제로 데이터가 삭제됩니다.</div>
+      </div>
+    </div>
+
+  </div>
+  </details>
+
+  <!-- 결과 파일 -->
+  <details class="section-wrap">
+  <summary>
+    <h3><span class="ico">📋</span> 결과 파일(3_Result) 읽는 법</h3>
+    <span class="chev">▼</span>
+  </summary>
+  <div class="section-body">
+
+    <p style="font-size:13.5px; color:#4a5568; margin-bottom:6px;">
+      결과는 재실행 중의 자체 판단이 아니라, <strong>실행이 끝난 뒤 NERP를 다시 조회해서 확인한 실제 상태</strong>를 기준으로 기록됩니다.
+    </p>
+
+    <div class="status-grid">
+      <div class="status-row">
+        <div class="status-pill success">success</div>
+        <p>이번 실행에서 정상적으로 삭제 확인됨.</p>
+      </div>
+      <div class="status-row">
+        <div class="status-pill already">already done</div>
+        <p>이번 실행이 하기 전에 <strong>이미 처리되어 있던 팔렛</strong> (이번 실행이 삭제한 게 아님).</p>
+      </div>
+      <div class="status-row">
+        <div class="status-pill failed">failed</div>
+        <p>재확인했지만 아직 삭제되지 않은 것으로 확인됨 — NERP에서 직접 확인 필요.</p>
+      </div>
+      <div class="status-row">
+        <div class="status-pill unverified">unverified</div>
+        <p>재확인 조회 자체가 실패함 (성공/실패 여부 불명) — NERP에서 직접 확인 필요.</p>
+      </div>
+      <div class="status-row danger-row">
+        <div class="status-pill error">possible error</div>
+        <p><strong>요청하지 않은 팔렛인데 이번 실행 중 처리된 것으로 확인됨</strong> — 빨간 글씨로 맨 위에 표시. 가장 심각한 케이스이니 즉시 확인 필요.</p>
+      </div>
+    </div>
+  </div>
+  </details>
+
+  <!-- 중단/재개, 오류 -->
+  <details class="section-wrap">
+  <summary>
+    <h3><span class="ico">🔁</span> 중단 / 재개 · 자주 발생하는 오류</h3>
+    <span class="chev">▼</span>
+  </summary>
+  <div class="section-body">
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h4>언제든 중단 가능</h4>
+        <p>로그 창을 닫으면 그 자리서 멈춥니다. 같은 폴더에서 exe를 다시 실행하면 남아있는 파일을 보고 "[Found] ... Continue / Start from Step 1"을 물어봅니다.</p>
+        <div class="tip"><strong>💡</strong> 이미 완료(success/already done)된 팔렛은 재실행해도 다시 삭제를 시도하지 않습니다.</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h4>"Excel이 아직 열려있습니다" 팝업</h4>
+        <p>생성된 파일을 저장하지 않고 닫았거나 Excel이 아직 열려있을 때 뜹니다. 파일을 저장 후 닫고 <strong>Retry</strong>를 누르세요.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h4>NERP 응답 지연</h4>
+        <p>NERP 조회/화면 전환이 평소보다 오래 걸리면 자동으로 재시도합니다. 계속 실패하면 NERP 접속 상태나 네트워크를 확인하세요.</p>
+      </div>
+    </div>
+
+  </div>
+  </details>
+
+</div>
+</details>
+
+
+<!-- ═══════════════════════════
+     ENGLISH VERSION
+     ═══════════════════════════ -->
+<details class="lang-block en">
+<summary>
+  <span class="flag">🇺🇸</span>
+  <h2>English Guide</h2>
+  <span class="chev">▼</span>
+</summary>
+<div class="lang-body">
+
+  <!-- Installation -->
+  <details class="section-wrap">
+  <summary>
+    <h3><span class="ico">⬇️</span> Installation (first time only)</h3>
+    <span class="chev">▼</span>
+  </summary>
+  <div class="section-body">
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h4>Click the download button above</h4>
+        <p>It takes you to the company SharePoint page to download <code>NERP_Unboxing_LIVE_DELETE.zip</code>.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h4>Unzip into a permanent working folder</h4>
+        <p>Whatever folder you run this exe from becomes its "working folder" — the request, review, and result files all accumulate there. Extract it into a fixed location (e.g. a shared drive) and always run it from that same folder.</p>
+        <div class="note">
+          <strong>⚠️ Important:</strong> The <code>_internal</code> and <code>ms-playwright</code> folders must always stay together with <code>NERP_Unboxing_LIVE_DELETE.exe</code>. Copying the .exe by itself will not work.
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h4>Windows security warning (first run)</h4>
+        <p>A blue SmartScreen warning may appear the first time. This is normal for unsigned EXE files. Click <strong>"More info"</strong> → <strong>"Run anyway"</strong>.</p>
+        <div class="tip"><strong>💡 One time only:</strong> This warning will not appear again after the first run.</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <h4>If still blocked — unblock the file</h4>
+        <p>Right-click <code>NERP_Unboxing_LIVE_DELETE.exe</code> → <strong>Properties</strong> → check <strong>"Unblock"</strong> at the bottom → <strong>OK</strong>, then run again.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-content">
+        <h4>Log in to NERP</h4>
+        <p>Running the exe opens a <strong>login popup</strong> directly (no console window). Enter your NERP ID and password.</p>
+
+<div class="dialog-mock">
+  <div class="dm-title">NERP Unboxing Login</div>
+  <div class="dm-body">
+    <p>ID: [________________]
+Password: [________________]
+☑ Save ID</p>
+    <div class="dm-buttons">
+      <div class="dm-btn secondary">Cancel</div>
+      <div class="dm-btn primary">Login</div>
+    </div>
+  </div>
+</div>
+
+        <div class="tip"><strong>💡 Save ID</strong> pre-fills your ID next time. <strong>Your password is never saved</strong> — you'll always need to type it in.</div>
+      </div>
+    </div>
+
+  </div>
+  </details>
+
+  <!-- What it does -->
+  <details class="section-wrap" open>
+  <summary>
+    <h3><span class="ico">📖</span> How it works — the 3-step flow</h3>
+    <span class="chev">▼</span>
+  </summary>
+  <div class="section-body">
+
+    <p style="font-size:13.5px; color:#4a5568; margin-bottom:16px;">
+      One run of the exe chains <strong>Request → Review → Execute</strong> automatically. Closing the window pauses the session — running the exe again will offer to resume from where you left off.
+    </p>
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h4>Step 1 — Request</h4>
+        <p>After logging in to NERP, it downloads the full inventory.</p>
+        <p>In the opened Excel file, enter the number of pallets to unbox per material in the yellow <strong>"Requested Pallets"</strong> column, save, and close Excel.</p>
+
+<div class="xl-mock">
+  <table>
+    <tr><th>No.</th><th>Material</th><th>Available Pallets</th><th>Requested Pallets</th></tr>
+    <tr><td>1</td><td class="left">MPD00268AB</td><td>42</td><td class="input-cell">5</td></tr>
+    <tr><td>2</td><td class="left">MHU00844AB</td><td>18</td><td class="input-cell">3</td></tr>
+    <tr><td>3</td><td class="left">MPD00250AB</td><td>27</td><td></td></tr>
+  </table>
+  <div class="xl-caption">Only enter numbers in the yellow cells — leave a material blank if you don't need it.</div>
+</div>
+
+        <p>Click <strong>Continue</strong> in the program window.</p>
+        <div class="note"><strong>Pallets already processed (Repack Status done) are automatically excluded</strong> from the request/review.</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h4>Step 2 — Review</h4>
+        <p><code>2_Review_YYYYMMDD_HHMM.xlsx</code> opens automatically, showing recommended/excluded pallets per material.</p>
+        <p>Check the selected pallets — moving the <strong>O</strong> to a different row selects that pallet instead.</p>
+
+<div class="xl-mock">
+  <table>
+    <tr><th>Selected</th><th>Verdict</th><th>HU External ID</th></tr>
+    <tr><td class="o-mark">O</td><td class="left">Recommended</td><td class="left">...26311001</td></tr>
+    <tr class="moved"><td class="o-mark">O</td><td class="left">Swappable</td><td class="left">...26311003</td></tr>
+    <tr><td></td><td class="left">Recommended</td><td class="left">...26311002</td></tr>
+  </table>
+  <div class="xl-caption">Move the O mark to another row to select that pallet instead.</div>
+</div>
+
+        <p>Save, close Excel, and click <strong>Continue</strong> in the program window. (If you need to change the pallet counts, click <strong>Edit pallet count</strong> to go back to Step 2.)</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h4>Step 3 — Execute ⚠️ Real deletion</h4>
+        <p>A final confirmation popup shows the pallet count/quantity per material.</p>
+
+<div class="dialog-mock">
+  <div class="dm-title">Confirm</div>
+  <div class="dm-body">
+    <p>MPD00268AB: 5 pallets, 840 EA
+
+Total quantity: 840 EA
+
+Proceed with execution? (y/N):</p>
+    <div class="dm-buttons">
+      <div class="dm-btn primary">Yes</div>
+      <div class="dm-btn secondary">No</div>
+    </div>
+  </div>
+</div>
+
+        <p>Clicking Yes logs back into NERP and runs the actual <strong>Delete Box Data</strong> action per material.</p>
+        <p>Once execution finishes, the results are shown in an Excel file.</p>
+        <div class="danger"><strong>⚠️ Once you click Yes, it cannot be undone.</strong> Data is permanently deleted in NERP.</div>
+      </div>
+    </div>
+
+  </div>
+  </details>
+
+  <!-- Result file -->
+  <details class="section-wrap">
+  <summary>
+    <h3><span class="ico">📋</span> Reading the result file (3_Result)</h3>
+    <span class="chev">▼</span>
+  </summary>
+  <div class="section-body">
+
+    <p style="font-size:13.5px; color:#4a5568; margin-bottom:6px;">
+      Results are based on <strong>re-querying NERP after execution</strong>, not on any in-process signal from the delete loop itself.
+    </p>
+
+    <div class="status-grid">
+      <div class="status-row">
+        <div class="status-pill success">success</div>
+        <p>Confirmed deleted by this run.</p>
+      </div>
+      <div class="status-row">
+        <div class="status-pill already">already done</div>
+        <p>Was <strong>already done before this run</strong> reached it (not deleted by this run).</p>
+      </div>
+      <div class="status-row">
+        <div class="status-pill failed">failed</div>
+        <p>Re-checked and confirmed NOT yet deleted — check NERP directly.</p>
+      </div>
+      <div class="status-row">
+        <div class="status-pill unverified">unverified</div>
+        <p>The re-check query itself failed (success/failure unknown) — check NERP directly.</p>
+      </div>
+      <div class="status-row danger-row">
+        <div class="status-pill error">possible error</div>
+        <p><strong>A pallet that was NOT requested was processed during this run</strong> — shown in red at the top. The most serious case; check immediately.</p>
+      </div>
+    </div>
+  </div>
+  </details>
+
+  <!-- Pause/resume, errors -->
+  <details class="section-wrap">
+  <summary>
+    <h3><span class="ico">🔁</span> Pausing / Resuming · Common Issues</h3>
+    <span class="chev">▼</span>
+  </summary>
+  <div class="section-body">
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h4>You can stop at any time</h4>
+        <p>Closing the log window pauses right there. Running the exe again in the same folder shows "[Found] ... Continue / Start from Step 1".</p>
+        <div class="tip"><strong>💡</strong> Pallets already marked success/already done are never re-attempted on resume.</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h4>"File still open in Excel" popup</h4>
+        <p>Shown when a generated file was closed without saving, or is still open. Save and close it, then click <strong>Retry</strong>.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h4>NERP responding slowly</h4>
+        <p>Slower-than-usual NERP queries or screen transitions are retried automatically. If it keeps failing, check your NERP connection/network.</p>
+      </div>
+    </div>
+
+  </div>
+  </details>
+
+</div>
+</details>
+
+<footer>Questions or issues? Contact your administrator.</footer>
+
+</div>
+</body>
+</html>

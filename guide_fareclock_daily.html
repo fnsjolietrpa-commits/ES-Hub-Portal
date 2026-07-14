@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FareClock 데일리 타임카드 리포트 - Guide</title>
+<base target="_top">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    background: #f0f2f7; color: #1e2535; line-height: 1.6;
+  }
+  .container { max-width: 880px; margin: 0 auto; padding: 32px 20px 64px; }
+  header {
+    text-align: center; padding: 36px 20px 28px;
+    background: #C09000; color: white; border-radius: 12px; margin-bottom: 32px;
+  }
+  header h1 { font-size: 26px; font-weight: 700; margin-bottom: 8px; }
+  header p { font-size: 14px; opacity: 0.9; margin-bottom: 16px; }
+  .schedule-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.2); border-radius: 20px;
+    padding: 6px 16px; font-size: 14px; font-weight: 600;
+  }
+  .lang-block {
+    background: #fff; border-radius: 14px; margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow: hidden;
+  }
+  .lang-block > summary {
+    list-style: none; cursor: pointer; padding: 18px 28px;
+    display: flex; align-items: center; gap: 12px; user-select: none;
+    border-left: 5px solid transparent;
+  }
+  .lang-block > summary::-webkit-details-marker { display: none; }
+  .lang-block.ko > summary { border-left-color: #C09000; }
+  .lang-block.en > summary { border-left-color: #967000; }
+  .lang-block > summary h2 { font-size: 18px; font-weight: 700; color: #1A0A36; flex: 1; margin: 0; display: flex; align-items: center; gap: 10px; }
+  .lang-block > summary .flag { font-size: 22px; }
+  .lang-block > summary .chev { font-size: 12px; color: #a0aab8; transition: transform 0.2s; }
+  .lang-block[open] > summary .chev { transform: rotate(180deg); }
+  .lang-block[open] > summary { border-bottom: 1.5px solid #e6eaf2; }
+  .lang-body { padding: 20px 24px 24px; background: #f7f8fc; }
+  .section-wrap {
+    background: #fff; border-radius: 10px; margin-bottom: 14px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05); overflow: hidden;
+  }
+  .section-wrap > summary {
+    list-style: none; cursor: pointer; padding: 16px 24px;
+    display: flex; align-items: center; gap: 10px; user-select: none;
+  }
+  .section-wrap > summary::-webkit-details-marker { display: none; }
+  .section-wrap > summary h3 { font-size: 15px; font-weight: 700; color: #1A0A36; flex: 1; margin: 0; display: flex; align-items: center; gap: 8px; }
+  .section-wrap > summary .ico { font-size: 18px; }
+  .section-wrap > summary .chev { font-size: 11px; color: #a0aab8; transition: transform 0.2s; }
+  .section-wrap[open] > summary .chev { transform: rotate(180deg); }
+  .section-wrap[open] > summary { border-bottom: 1px solid #e6eaf2; }
+  .section-body { padding: 20px 24px 24px; }
+  .step { display: flex; gap: 16px; margin-bottom: 22px; padding-bottom: 22px; border-bottom: 1px dashed #e3e8f0; }
+  .step:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+  .step-num {
+    flex-shrink: 0; width: 32px; height: 32px; background: #1A0A36; color: #fff;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 13px; margin-top: 2px;
+  }
+  .step-content { flex: 1; min-width: 0; }
+  .step-content h4 { font-size: 14px; font-weight: 700; color: #1A0A36; margin-bottom: 6px; }
+  .step-content p { font-size: 14px; color: #4a5568; margin-bottom: 8px; line-height: 1.7; }
+  .step-content p:last-child { margin-bottom: 0; }
+  .note { background: #fff8e1; border-left: 3px solid #f5a623; padding: 9px 13px; margin-top: 8px; border-radius: 0 6px 6px 0; font-size: 13.5px; color: #6b4a08; }
+  .note strong { color: #a36804; }
+  .tip { background: #edf7ed; border-left: 3px solid #52b152; padding: 9px 13px; margin-top: 8px; border-radius: 0 6px 6px 0; font-size: 13.5px; color: #275427; }
+  .tip strong { color: #1d6b1d; }
+  .item-list { list-style: none; margin: 8px 0; }
+  .item-list li { padding: 7px 0 7px 16px; border-bottom: 1px solid #eff2f8; font-size: 14px; color: #4a5568; position: relative; }
+  .item-list li::before { content: "•"; position: absolute; left: 0; color: #C09000; font-weight: bold; }
+  .item-list li:last-child { border-bottom: none; }
+  .color-chip { display: inline-block; width: 13px; height: 13px; border-radius: 2px; vertical-align: middle; margin-right: 5px; border: 1px solid rgba(0,0,0,0.15); }
+
+  /* Email mockup */
+  .email-set-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #888; margin: 16px 0 6px; }
+  .email-set-label:first-child { margin-top: 0; }
+  .email-mock { border: 1px solid #d0d7e4; border-radius: 10px; overflow: hidden; margin-bottom: 16px; font-size: 13px; }
+  .email-topbar { background: #e8ecf4; padding: 10px 16px; border-bottom: 1px solid #d0d7e4; }
+  .email-topbar .subject { font-weight: 700; font-size: 14px; color: #1a2035; margin-bottom: 6px; }
+  .email-topbar .meta { font-size: 12px; color: #666; line-height: 1.8; }
+  .email-topbar .meta b { color: #444; min-width: 52px; display: inline-block; }
+  .email-body-wrap { padding: 18px 20px; background: #fff; overflow-x: auto; }
+  .email-body-wrap p { font-size: 13px; color: #333; margin-bottom: 8px; line-height: 1.6; }
+  .email-do-not-reply { color: red; font-weight: bold; font-size: 13px; margin-bottom: 10px; }
+  .email-table { border-collapse: collapse; font-size: 13px; margin: 10px 0; }
+  .email-table th { background: #4472C4; color: white; padding: 7px 14px; border: 1px solid #ddd; text-align: left; white-space: nowrap; }
+  .email-table td { padding: 5px 14px; border: 1px solid #ddd; white-space: nowrap; }
+  .email-table .total-row td { background: #f0f0f0; font-weight: bold; }
+  .cell-yellow { background: #FFD700; color: black; font-weight: bold; }
+  .cell-red { background: #FF4444; color: white; font-weight: bold; }
+
+  footer { text-align: center; margin-top: 36px; color: #8a94a6; font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>📋 FareClock 데일리 타임카드 리포트</h1>
+  <p>전일 타임카드 부서(Shift Class)별 집계 및 팀별 이메일 발송</p>
+  <div class="schedule-badge">🕐 매일 오전 9:25 자동 실행</div>
+</header>
+
+<!-- KOREAN -->
+<details class="lang-block ko" open>
+<summary><span class="flag">🇰🇷</span><h2>한국어 설명</h2><span class="chev">▼</span></summary>
+<div class="lang-body">
+
+  <details class="section-wrap" open>
+  <summary><h3><span class="ico">📖</span> 어떤 일을 하나요?</h3><span class="chev">▼</span></summary>
+  <div class="section-body">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h4>FareClock 자동 로그인 — 전일 데이터 기준</h4>
+        <p>컴퓨터가 알아서 FareClock에 접속하고, 날짜를 어제로 바꿔 출퇴근 기록을 불러옵니다.</p>
+        <div class="note"><strong>⚠️ 어제 데이터가 없는 경우(예: 공휴일):</strong> 모든 담당자에게 "데이터 없음" 안내 이메일을 발송하고 종료합니다.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h4>부서(Shift Class)별 파일 분리</h4>
+        <p>전체 데이터를 부서 단위로 분리해 각 부서의 출퇴근 기록만 따로 정리합니다. 처음 보는 새 부서가 생기면 관리자에게 별도로 알림 이메일을 보냅니다.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h4>팀별 담당자 개별 이메일 발송</h4>
+        <p>각 부서 담당자에게는 해당 팀 데이터만 담긴 파일을 첨부해서 이메일을 발송합니다. 근무 시간이 기준에서 벗어난 직원은 색으로 표시됩니다.</p>
+        <ul class="item-list">
+          <li><span class="color-chip" style="background:#FFD700;"></span><strong>노란색</strong> — 근무 시간이 7시간 40분 이하 (짧음)</li>
+          <li><span class="color-chip" style="background:#FF4444;"></span><strong>빨간색</strong> — 근무 시간이 8시간 15분 이상 (초과)</li>
+        </ul>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <h4>전체 통합 리포트 발송</h4>
+        <p>모든 부서 데이터가 담긴 통합 파일을 관리자 전체 배포 목록에 발송합니다. 이메일에는 부서별 FL / GL 인원 수, 정규 근무시간, 초과 근무시간 요약표가 포함됩니다.</p>
+        <div class="tip"><strong>💡 하루 한 번만 실행:</strong> 같은 날 두 번 실행돼도 이메일이 중복 발송되지 않습니다.</div>
+      </div>
+    </div>
+  </div>
+  </details>
+
+  <details class="section-wrap" open>
+  <summary><h3><span class="ico">📧</span> 실제 이메일 예시</h3><span class="chev">▼</span></summary>
+  <div class="section-body">
+
+    <div class="email-set-label">① 팀별 개별 이메일 (VAS-PWS 담당자에게만 발송)</div>
+    <div class="email-mock">
+      <div class="email-topbar">
+        <div class="subject">[Time Cards] VAS-PWS - 06/24/2026</div>
+        <div class="meta">
+          <b>보낸 사람</b> fns.joliet@gmail.com<br>
+          <b>받는 사람</b> yongki.hong, raehaun.lee, andrew.ahn, jongsea.lee, rudy.johnson
+        </div>
+      </div>
+      <div class="email-body-wrap">
+        <p class="email-do-not-reply">⚠️ DO NOT REPLY TO THIS EMAIL</p>
+        <p>Hi,</p>
+        <p>Below is yesterday's <strong>VAS-PWS</strong> team Time Cards report. (57 workers)</p>
+        <p style="font-size:11px; color:#888;">Red cells = Total Hrs 8:15 or above / Yellow cells = Total Hrs 7:40 or below</p>
+        <table class="email-table">
+          <thead><tr>
+            <th>Labels</th><th>Worker</th><th>IN</th><th>OUT</th><th>IN.1</th><th>OUT.1</th><th>Total Hrs</th>
+          </tr></thead>
+          <tbody>
+            <tr><td>FL</td><td>Kim, John</td><td>06:02</td><td>14:05</td><td></td><td></td><td>8:03</td></tr>
+            <tr><td>GL</td><td>Park, Sarah</td><td>06:00</td><td>14:20</td><td></td><td></td><td class="cell-red">8:20</td></tr>
+            <tr><td>FL</td><td>Lee, Mike</td><td>06:05</td><td>13:42</td><td></td><td></td><td class="cell-yellow">7:37</td></tr>
+            <tr><td>FL</td><td>Choi, Amy</td><td>06:01</td><td>14:08</td><td></td><td></td><td>8:07</td></tr>
+            <tr style="color:#aaa; font-style:italic;"><td colspan="7" style="text-align:center; padding:4px; font-size:12px;">... 53명 더 ...</td></tr>
+          </tbody>
+        </table>
+        <p>Thank you.</p>
+      </div>
+    </div>
+
+    <div class="email-set-label">② 전체 통합 리포트 (관리자 전원에게 발송 + Excel 첨부)</div>
+    <div class="email-mock">
+      <div class="email-topbar">
+        <div class="subject">[Time Cards] Full Report (All Shift Classes) - 06/24/2026</div>
+        <div class="meta">
+          <b>보낸 사람</b> fns.joliet@gmail.com<br>
+          <b>받는 사람</b> minwook.kim, yongki.hong, eva.salas, doohyun.kim, hwanhoon.ji, justin.choi, sungyong.yu<br>
+          <b>BCC</b> hana.oh@fnsusa.com &nbsp;|&nbsp; 📎 TimeCards_ByShiftClass.xlsx
+        </div>
+      </div>
+      <div class="email-body-wrap">
+        <p class="email-do-not-reply">⚠️ DO NOT REPLY TO THIS EMAIL</p>
+        <p>Hi,</p>
+        <p>Attached is the <strong>full Time Cards report</strong> for 06/24/2026.</p>
+        <p>Total workers: <strong>142</strong></p>
+        <table class="email-table">
+          <thead><tr>
+            <th>Shift Class</th><th>FL</th><th>GL</th><th>Reg Hrs</th><th>OT Hrs</th>
+          </tr></thead>
+          <tbody>
+            <tr><td>CLEANING</td><td style="text-align:center;">8</td><td style="text-align:center;">0</td><td style="text-align:center;">64:00</td><td style="text-align:center;"></td></tr>
+            <tr><td>FG</td><td style="text-align:center;">6</td><td style="text-align:center;">2</td><td style="text-align:center;">64:00</td><td style="text-align:center;">0:15</td></tr>
+            <tr><td>IB</td><td style="text-align:center;">14</td><td style="text-align:center;">4</td><td style="text-align:center;">144:00</td><td style="text-align:center;">1:10</td></tr>
+            <tr><td>VAS-PWS</td><td style="text-align:center;">44</td><td style="text-align:center;">13</td><td style="text-align:center;">456:00</td><td style="text-align:center;">3:45</td></tr>
+            <tr style="color:#aaa; font-style:italic;"><td colspan="5" style="text-align:center; padding:4px; font-size:12px;">... 나머지 부서 ...</td></tr>
+            <tr class="total-row"><td></td><td style="text-align:center;">110</td><td style="text-align:center;">32</td><td style="text-align:center;">1,136:00</td><td style="text-align:center;">8:40</td></tr>
+          </tbody>
+        </table>
+        <p>Thank you.</p>
+      </div>
+    </div>
+
+  </div>
+  </details>
+
+</div>
+</details>
+
+<!-- ENGLISH -->
+<details class="lang-block en">
+<summary><span class="flag">🇺🇸</span><h2>English Guide</h2><span class="chev">▼</span></summary>
+<div class="lang-body">
+
+  <details class="section-wrap" open>
+  <summary><h3><span class="ico">📖</span> What it does</h3><span class="chev">▼</span></summary>
+  <div class="section-body">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h4>FareClock Login — Previous Day</h4>
+        <p>The computer signs into FareClock on its own and switches the date to yesterday to pull the previous day's time cards.</p>
+        <div class="note"><strong>⚠️ No data for yesterday (e.g. a holiday):</strong> A "No Data" notification is emailed to all recipients and the script stops.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h4>Data Split by Shift Class</h4>
+        <p>Separates the full dataset by Shift Class so each team's records are kept on their own. If a brand-new Shift Class appears, the admin gets an alert email automatically.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h4>Individual Email per Shift Class</h4>
+        <p>Each Shift Class manager receives only their team's data as an email attachment. Workers with unusual hours are highlighted in color.</p>
+        <ul class="item-list">
+          <li><span class="color-chip" style="background:#FFD700;"></span><strong>Yellow</strong> — worked 7 hrs 40 min or less (short hours)</li>
+          <li><span class="color-chip" style="background:#FF4444;"></span><strong>Red</strong> — worked 8 hrs 15 min or more (overtime)</li>
+        </ul>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <h4>Full Combined Report to All Managers</h4>
+        <p>A single Excel file with all teams in separate tabs is emailed to the full management list, with FL/GL headcount, regular hours, and overtime hours per team.</p>
+        <div class="tip"><strong>💡 Runs only once a day:</strong> Even if triggered twice, the emails only go out once.</div>
+      </div>
+    </div>
+  </div>
+  </details>
+
+  <details class="section-wrap" open>
+  <summary><h3><span class="ico">📧</span> Sample emails</h3><span class="chev">▼</span></summary>
+  <div class="section-body">
+
+    <div class="email-set-label">① Per-team email (sent only to VAS-PWS managers)</div>
+    <div class="email-mock">
+      <div class="email-topbar">
+        <div class="subject">[Time Cards] VAS-PWS - 06/24/2026</div>
+        <div class="meta">
+          <b>From</b> fns.joliet@gmail.com<br>
+          <b>To</b> yongki.hong, raehaun.lee, andrew.ahn, jongsea.lee, rudy.johnson
+        </div>
+      </div>
+      <div class="email-body-wrap">
+        <p class="email-do-not-reply">⚠️ DO NOT REPLY TO THIS EMAIL</p>
+        <p>Hi,</p>
+        <p>Below is yesterday's <strong>VAS-PWS</strong> team Time Cards report. (57 workers)</p>
+        <p style="font-size:11px; color:#888;">Red cells = Total Hrs 8:15 or above / Yellow cells = Total Hrs 7:40 or below</p>
+        <table class="email-table">
+          <thead><tr>
+            <th>Labels</th><th>Worker</th><th>IN</th><th>OUT</th><th>IN.1</th><th>OUT.1</th><th>Total Hrs</th>
+          </tr></thead>
+          <tbody>
+            <tr><td>FL</td><td>Kim, John</td><td>06:02</td><td>14:05</td><td></td><td></td><td>8:03</td></tr>
+            <tr><td>GL</td><td>Park, Sarah</td><td>06:00</td><td>14:20</td><td></td><td></td><td class="cell-red">8:20</td></tr>
+            <tr><td>FL</td><td>Lee, Mike</td><td>06:05</td><td>13:42</td><td></td><td></td><td class="cell-yellow">7:37</td></tr>
+            <tr><td>FL</td><td>Choi, Amy</td><td>06:01</td><td>14:08</td><td></td><td></td><td>8:07</td></tr>
+            <tr style="color:#aaa; font-style:italic;"><td colspan="7" style="text-align:center; padding:4px; font-size:12px;">... 53 more workers ...</td></tr>
+          </tbody>
+        </table>
+        <p>Thank you.</p>
+      </div>
+    </div>
+
+    <div class="email-set-label">② Full consolidated report (sent to all managers + Excel attached)</div>
+    <div class="email-mock">
+      <div class="email-topbar">
+        <div class="subject">[Time Cards] Full Report (All Shift Classes) - 06/24/2026</div>
+        <div class="meta">
+          <b>From</b> fns.joliet@gmail.com<br>
+          <b>To</b> minwook.kim, yongki.hong, eva.salas, doohyun.kim, hwanhoon.ji, justin.choi, sungyong.yu<br>
+          <b>BCC</b> hana.oh@fnsusa.com &nbsp;|&nbsp; 📎 TimeCards_ByShiftClass.xlsx
+        </div>
+      </div>
+      <div class="email-body-wrap">
+        <p class="email-do-not-reply">⚠️ DO NOT REPLY TO THIS EMAIL</p>
+        <p>Hi,</p>
+        <p>Attached is the <strong>full Time Cards report</strong> for 06/24/2026.</p>
+        <p>Total workers: <strong>142</strong></p>
+        <table class="email-table">
+          <thead><tr>
+            <th>Shift Class</th><th>FL</th><th>GL</th><th>Reg Hrs</th><th>OT Hrs</th>
+          </tr></thead>
+          <tbody>
+            <tr><td>CLEANING</td><td style="text-align:center;">8</td><td style="text-align:center;">0</td><td style="text-align:center;">64:00</td><td style="text-align:center;"></td></tr>
+            <tr><td>FG</td><td style="text-align:center;">6</td><td style="text-align:center;">2</td><td style="text-align:center;">64:00</td><td style="text-align:center;">0:15</td></tr>
+            <tr><td>IB</td><td style="text-align:center;">14</td><td style="text-align:center;">4</td><td style="text-align:center;">144:00</td><td style="text-align:center;">1:10</td></tr>
+            <tr><td>VAS-PWS</td><td style="text-align:center;">44</td><td style="text-align:center;">13</td><td style="text-align:center;">456:00</td><td style="text-align:center;">3:45</td></tr>
+            <tr style="color:#aaa; font-style:italic;"><td colspan="5" style="text-align:center; padding:4px; font-size:12px;">... other shifts ...</td></tr>
+            <tr class="total-row"><td></td><td style="text-align:center;">110</td><td style="text-align:center;">32</td><td style="text-align:center;">1,136:00</td><td style="text-align:center;">8:40</td></tr>
+          </tbody>
+        </table>
+        <p>Thank you.</p>
+      </div>
+    </div>
+
+  </div>
+  </details>
+
+</div>
+</details>
+
+<footer>Questions or issues? Contact your administrator.</footer>
+</div>
+</body>
+</html>

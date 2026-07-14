@@ -1,0 +1,451 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QC Tote Label Maker - 사용 가이드</title>
+<base target="_top">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    background: #f5f7fa; color: #2c3e50; line-height: 1.6;
+  }
+  .container { max-width: 900px; margin: 0 auto; padding: 32px 20px 60px; }
+  header {
+    text-align: center; padding: 40px 20px 32px;
+    background: linear-gradient(135deg, #1a5c2a 0%, #2e8b47 100%);
+    color: white; border-radius: 12px; margin-bottom: 32px;
+  }
+  header h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.5px; }
+  header p { font-size: 15px; opacity: 0.9; }
+  .download-btn-wrap { text-align: center; margin: 32px 0; }
+  .download-btn {
+    display: inline-block; padding: 14px 36px; background: #1e88e5; color: white;
+    text-decoration: none; border-radius: 8px; font-size: 16px; font-weight: 600;
+    box-shadow: 0 4px 12px rgba(30,136,229,0.3); transition: all 0.2s;
+  }
+  .download-btn:hover { background: #1565c0; transform: translateY(-1px); }
+  .download-btn .size { font-size: 12px; opacity: 0.85; margin-left: 8px; font-weight: 400; }
+  details {
+    background: white; border-radius: 12px; margin-bottom: 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05); overflow: hidden;
+  }
+  details summary {
+    list-style: none; cursor: pointer; padding: 22px 32px;
+    display: flex; align-items: center; gap: 10px; user-select: none;
+  }
+  details summary::-webkit-details-marker { display: none; }
+  details summary h2 {
+    font-size: 22px; color: #1a5c2a; flex: 1; margin: 0;
+    display: flex; align-items: center; gap: 10px;
+  }
+  details summary .icon { font-size: 24px; }
+  details summary .chevron {
+    font-size: 14px; color: #999; transition: transform 0.2s;
+  }
+  details[open] summary .chevron { transform: rotate(180deg); }
+  details[open] summary {
+    border-bottom: 2px solid #e3eaf2;
+  }
+  .section-body { padding: 24px 32px 28px; }
+  section {
+    background: white; border-radius: 12px; padding: 28px 32px; margin-bottom: 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+  section h2 {
+    font-size: 22px; color: #1a5c2a; margin-bottom: 20px; padding-bottom: 12px;
+    border-bottom: 2px solid #e3eaf2; display: flex; align-items: center; gap: 10px;
+  }
+  section h2 .icon { font-size: 24px; }
+  .step { display: flex; gap: 20px; margin-bottom: 28px; padding-bottom: 28px; border-bottom: 1px dashed #e3eaf2; }
+  .step:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+  .step-num {
+    flex-shrink: 0; width: 36px; height: 36px; background: #1a5c2a; color: white;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 16px;
+  }
+  .step-content { flex: 1; min-width: 0; }
+  .step-content h3 { font-size: 17px; color: #1a5c2a; margin-bottom: 8px; }
+  .step-content p { color: #4a5568; font-size: 14px; margin-bottom: 12px; }
+  .mock { max-width: 100%; height: auto; border-radius: 8px; border: 1px solid #e0e6ed;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-top: 8px; display: block; }
+  .note {
+    background: #fff8e1; border-left: 4px solid #ffa726; padding: 12px 16px;
+    margin-top: 12px; border-radius: 4px; font-size: 13px; color: #6b4f0a;
+  }
+  .note strong { color: #b8780b; }
+  .tip {
+    background: #e8f5e9; border-left: 4px solid #66bb6a; padding: 12px 16px;
+    margin-top: 12px; border-radius: 4px; font-size: 13px; color: #2e5c2e;
+  }
+  .tip strong { color: #1b5e20; }
+  .field-list { list-style: none; margin: 12px 0; }
+  .field-list li { padding: 8px 0; border-bottom: 1px solid #f0f4f8; font-size: 14px; }
+  .field-list li:last-child { border-bottom: none; }
+  .field-list strong { color: #1a5c2a; display: inline-block; min-width: 160px; }
+  code {
+    background: #f4f6f8; padding: 2px 6px; border-radius: 4px;
+    font-family: "Consolas", "Monaco", monospace; font-size: 13px; color: #c2185b;
+  }
+  .label-preview {
+    display: flex; gap: 16px; flex-wrap: wrap; margin: 16px 0;
+  }
+  .label-card {
+    border: 2px solid #333; border-radius: 4px; width: 130px; padding: 8px 10px;
+    font-family: "Impact", "Arial Black", sans-serif; text-align: center; background: #fffde7;
+  }
+  .label-card .lc-title { font-size: 11px; font-weight: 700; border-bottom: 1px solid #ccc; padding-bottom: 4px; margin-bottom: 6px; }
+  .label-card .lc-meta { font-size: 9px; text-align: left; margin-bottom: 4px; }
+  .label-card .lc-num { font-size: 28px; font-weight: 900; line-height: 1; margin: 4px 0; }
+  .label-card .lc-abcd { font-size: 10px; letter-spacing: 6px; margin-top: 4px; }
+  footer { text-align: center; margin-top: 40px; color: #8a94a6; font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>🏷️ QC Tote Label Maker</h1>
+  <p>Busbar A / Busbar B / MICA QC 라벨을 4"×4" PDF로 생성</p>
+</header>
+
+<div class="download-btn-wrap">
+  <a href="https://fnsul.sharepoint.com/:u:/s/FNSChicagoHub/IQDewLa54YQIQZ4UkGCsbPCvASZjO1w-jqddf03ySEsDR3w?e=JdguAi" class="download-btn" target="_blank">
+    💾 다운로드 (SharePoint)
+    <span class="size">tote_label_maker_yellow.exe</span>
+  </a>
+</div>
+
+<!-- 설치 가이드 -->
+<details>
+<summary><h2><span class="icon">⬇️</span> 설치 가이드 (최초 1회)</h2><span class="chevron">▼</span></summary>
+<div class="section-body">
+
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-content">
+      <h3>위 다운로드 버튼 클릭</h3>
+      <p>위쪽 파란 <strong>다운로드 버튼</strong>을 누르면 회사 SharePoint 페이지로 이동합니다.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-content">
+      <h3>회사 계정으로 로그인</h3>
+      <p>FNS 회사 계정(이메일)으로 로그인하세요. 이미 로그인되어 있으면 이 단계는 건너뜁니다.</p>
+
+<svg class="mock" viewBox="0 0 760 440" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="FNS 로그인 화면">
+  <rect width="760" height="440" fill="#f3f4f6"/>
+  <rect x="230" y="70" width="300" height="300" rx="6" fill="#ffffff" stroke="#e3e7ec"/>
+  <g transform="translate(258,104)">
+    <rect x="0" y="0" width="11" height="11" fill="#f25022"/>
+    <rect x="13" y="0" width="11" height="11" fill="#7fba00"/>
+    <rect x="0" y="13" width="11" height="11" fill="#00a4ef"/>
+    <rect x="13" y="13" width="11" height="11" fill="#ffb900"/>
+    <text x="32" y="20" font-family="Segoe UI, sans-serif" font-size="13" fill="#5e5e5e">Microsoft</text>
+  </g>
+  <text x="258" y="168" font-family="Segoe UI, sans-serif" font-size="21" font-weight="600" fill="#1b1b1b">로그인</text>
+  <line x1="258" y1="206" x2="502" y2="206" stroke="#d9d9d9"/>
+  <text x="258" y="200" font-family="Segoe UI, sans-serif" font-size="14" fill="#a8a8a8">name@fnsul.com</text>
+  <text x="258" y="250" font-family="Segoe UI, sans-serif" font-size="12" fill="#5e5e5e">계정이 없으신가요? 계정을 만드세요.</text>
+  <rect x="408" y="286" width="94" height="34" fill="#0067b8"/>
+  <text x="455" y="308" font-family="Segoe UI, sans-serif" font-size="14" fill="#ffffff" text-anchor="middle">다음</text>
+  <text x="380" y="408" font-family="Segoe UI, sans-serif" font-size="12" fill="#9aa0a6" text-anchor="middle">FNS 회사 계정(이메일)으로 로그인</text>
+</svg>
+
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-content">
+      <h3>다운로드 진행</h3>
+      <p>SharePoint에서 좌측 상단 다운로드 버튼을 클릭하여 <code>tote_label_maker_yellow.exe</code> 파일을 다운로드합니다.</p>
+      <div class="tip">
+        <strong>💡 단일 EXE 파일입니다.</strong> 압축 해제 없이 원하는 폴더에 놓고 바로 실행하면 됩니다.<br>
+        이름 저장 기능이 있어 EXE 파일 옆에 <code>inspector_names.json</code> 파일이 자동 생성됩니다.
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">4</div>
+    <div class="step-content">
+      <h3>처음 실행 시 Windows 보안 경고</h3>
+      <p>EXE를 더블클릭하면 처음 한 번은 아래와 같은 경고가 뜹니다. 이건 정상이며, 코드 서명 인증서가 없는 EXE에 항상 나타납니다.</p>
+
+<svg class="mock" viewBox="0 0 640 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Windows Defender 경고">
+  <rect width="640" height="360" fill="#eef0f3"/>
+  <rect x="90" y="46" width="460" height="268" rx="4" fill="#ffffff" stroke="#cfd4da"/>
+  <rect x="90" y="46" width="460" height="60" fill="#0b3d91"/>
+  <text x="116" y="76" font-family="Segoe UI, sans-serif" font-size="18" font-weight="600" fill="#ffffff">Windows protected your PC</text>
+  <text x="116" y="96" font-family="Segoe UI, sans-serif" font-size="11" fill="#cdd9ef">Microsoft Defender SmartScreen</text>
+  <text x="116" y="146" font-family="Segoe UI, sans-serif" font-size="13" fill="#333">Microsoft Defender SmartScreen prevented an unrecognized</text>
+  <text x="116" y="166" font-family="Segoe UI, sans-serif" font-size="13" fill="#333">app from starting. Running this app might put your PC at risk.</text>
+  <rect x="115" y="196" width="74" height="22" fill="none" stroke="#e53935" stroke-width="2.5" rx="2"/>
+  <text x="120" y="212" font-family="Segoe UI, sans-serif" font-size="13" fill="#0067b8" font-weight="600">More info</text>
+  <rect x="438" y="262" width="92" height="32" fill="#e1e1e1" stroke="#bdbdbd"/>
+  <text x="484" y="283" font-family="Segoe UI, sans-serif" font-size="13" fill="#333" text-anchor="middle">Don't run</text>
+</svg>
+
+      <p style="margin-top:12px;"><strong>"More info"</strong>를 클릭하면 <strong>"Run anyway"</strong> 버튼이 나타납니다. 이걸 누르면 실행됩니다.</p>
+
+<svg class="mock" viewBox="0 0 640 380" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Windows Defender Run anyway">
+  <rect width="640" height="380" fill="#eef0f3"/>
+  <rect x="90" y="36" width="460" height="300" rx="4" fill="#ffffff" stroke="#cfd4da"/>
+  <rect x="90" y="36" width="460" height="60" fill="#0b3d91"/>
+  <text x="116" y="66" font-family="Segoe UI, sans-serif" font-size="18" font-weight="600" fill="#ffffff">Windows protected your PC</text>
+  <text x="116" y="86" font-family="Segoe UI, sans-serif" font-size="11" fill="#cdd9ef">Microsoft Defender SmartScreen</text>
+  <text x="116" y="134" font-family="Segoe UI, sans-serif" font-size="13" fill="#333">Microsoft Defender SmartScreen prevented an unrecognized</text>
+  <text x="116" y="154" font-family="Segoe UI, sans-serif" font-size="13" fill="#333">app from starting.</text>
+  <text x="116" y="186" font-family="Segoe UI, sans-serif" font-size="12" fill="#666">App:</text>
+  <text x="170" y="186" font-family="Segoe UI, sans-serif" font-size="12" fill="#222">tote_label_maker_yellow.exe</text>
+  <text x="116" y="206" font-family="Segoe UI, sans-serif" font-size="12" fill="#666">Publisher:</text>
+  <text x="186" y="206" font-family="Segoe UI, sans-serif" font-size="12" fill="#222">Unknown publisher</text>
+  <rect x="334" y="284" width="96" height="32" fill="#e1e1e1" stroke="#e53935" stroke-width="2.5"/>
+  <text x="382" y="305" font-family="Segoe UI, sans-serif" font-size="13" fill="#222" text-anchor="middle">Run anyway</text>
+  <rect x="438" y="284" width="92" height="32" fill="#e1e1e1" stroke="#bdbdbd"/>
+  <text x="484" y="305" font-family="Segoe UI, sans-serif" font-size="13" fill="#333" text-anchor="middle">Don't run</text>
+</svg>
+
+      <div class="tip">
+        <strong>💡 한 번만 하면 됩니다:</strong> 처음 실행 후 이 경고가 다시 뜨지 않습니다.
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">5</div>
+    <div class="step-content">
+      <h3>그래도 실행이 막힌다면 (차단 해제)</h3>
+      <p>Windows 스마트 스크린이 더 강하게 막아 <strong>"Run anyway" 버튼이 안 보이거나</strong> 실행이 계속 차단될 때가 있습니다. 이럴 때 파일 자체의 차단을 풀어주면 됩니다.</p>
+      <p><code>tote_label_maker_yellow.exe</code> 우클릭 → <strong>"속성(Properties)"</strong> → 하단 <strong>"차단 해제(Unblock)"</strong> 체크 → <strong>"확인"</strong> 후 다시 실행하세요.</p>
+
+<svg class="mock" viewBox="0 0 620 470" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="파일 차단 해제 (Properties Unblock)">
+  <rect width="620" height="470" fill="#eef0f3"/>
+  <rect x="170" y="26" width="280" height="418" rx="4" fill="#f3f3f3" stroke="#c8ccd2"/>
+  <rect x="170" y="26" width="280" height="34" rx="4" fill="#ffffff" stroke="#e3e7ec"/>
+  <text x="186" y="48" font-family="Segoe UI, sans-serif" font-size="12" fill="#333">tote_label_maker_yellow.exe 속성</text>
+  <text x="430" y="48" font-family="Segoe UI, sans-serif" font-size="13" fill="#777">✕</text>
+  <rect x="182" y="72" width="58" height="22" fill="#ffffff" stroke="#c8ccd2"/>
+  <text x="190" y="87" font-family="Segoe UI, sans-serif" font-size="11" fill="#222">일반</text>
+  <text x="252" y="87" font-family="Segoe UI, sans-serif" font-size="11" fill="#777">보안</text>
+  <text x="300" y="87" font-family="Segoe UI, sans-serif" font-size="11" fill="#777">자세히</text>
+  <rect x="182" y="94" width="256" height="200" fill="#ffffff" stroke="#c8ccd2"/>
+  <rect x="198" y="112" width="26" height="26" rx="3" fill="#dfe7f3" stroke="#9bb4d6"/>
+  <text x="234" y="130" font-family="Segoe UI, sans-serif" font-size="11" fill="#222">tote_label_maker_yellow.exe</text>
+  <line x1="198" y1="150" x2="424" y2="150" stroke="#ececec"/>
+  <text x="198" y="172" font-family="Segoe UI, sans-serif" font-size="11" fill="#888">파일 형식: 응용 프로그램 (.exe)</text>
+  <text x="198" y="192" font-family="Segoe UI, sans-serif" font-size="11" fill="#888">위치: C:\Users\...\Downloads</text>
+  <line x1="198" y1="208" x2="424" y2="208" stroke="#ececec"/>
+  <text x="198" y="232" font-family="Segoe UI, sans-serif" font-size="11" fill="#555">보안:</text>
+  <text x="234" y="232" font-family="Segoe UI, sans-serif" font-size="10.5" fill="#777">이 파일은 다른 컴퓨터에서 가져온 것이며,</text>
+  <text x="234" y="247" font-family="Segoe UI, sans-serif" font-size="10.5" fill="#777">이 컴퓨터를 보호하기 위해 차단되었을 수</text>
+  <text x="234" y="262" font-family="Segoe UI, sans-serif" font-size="10.5" fill="#777">있습니다.</text>
+  <rect x="318" y="270" width="16" height="16" fill="#ffffff" stroke="#0067b8"/>
+  <path d="M321 278 l3 4 l6 -8" stroke="#0067b8" stroke-width="2" fill="none"/>
+  <text x="340" y="283" font-family="Segoe UI, sans-serif" font-size="11.5" fill="#222" font-weight="600">차단 해제(Unblock)</text>
+  <rect x="312" y="266" width="118" height="26" fill="none" stroke="#e53935" stroke-width="2.5" rx="2"/>
+  <rect x="278" y="404" width="50" height="26" fill="#0067b8"/>
+  <text x="303" y="421" font-family="Segoe UI, sans-serif" font-size="11" fill="#ffffff" text-anchor="middle">확인</text>
+  <rect x="334" y="404" width="50" height="26" fill="#e6e6e6" stroke="#bdbdbd"/>
+  <text x="359" y="421" font-family="Segoe UI, sans-serif" font-size="11" fill="#333" text-anchor="middle">취소</text>
+  <rect x="390" y="404" width="50" height="26" fill="#e6e6e6" stroke="#bdbdbd"/>
+  <text x="415" y="421" font-family="Segoe UI, sans-serif" font-size="11" fill="#333" text-anchor="middle">적용</text>
+</svg>
+
+      <div class="note">
+        <strong>"차단 해제" 항목이 안 보이면</strong> 이미 차단이 풀린 상태이거나 처음 경고(4번) 단계에서 해결된 것이므로, <strong>More info → Run anyway</strong>로 실행하면 됩니다.
+      </div>
+    </div>
+  </div>
+</div></details>
+
+<!-- 사용 가이드 -->
+<details>
+<summary><h2><span class="icon">📖</span> 사용 가이드</h2><span class="chevron">▼</span></summary>
+<div class="section-body">
+
+  <p style="margin-bottom: 20px; color: #4a5568; font-size: 14px;">
+    EXE를 실행하면 아래와 같은 창이 열립니다. 각 항목을 채우고 <strong>Generate PDF</strong>를 누르면 4"×4" 라벨 PDF가 생성됩니다.
+  </p>
+
+  <!-- App UI mockup -->
+<svg class="mock" viewBox="0 0 500 430" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="QC Tote Label Maker 실행 화면" style="max-width:480px; margin: 0 auto 24px;">
+  <!-- Window chrome -->
+  <rect width="500" height="430" rx="8" fill="#f0f0f0" stroke="#bbb"/>
+  <rect x="0" y="0" width="500" height="32" rx="8" fill="#e0e0e0" stroke="#bbb"/>
+  <circle cx="16" cy="16" r="6" fill="#ff5f57"/>
+  <circle cx="36" cy="16" r="6" fill="#febc2e"/>
+  <circle cx="56" cy="16" r="6" fill="#28c840"/>
+  <text x="250" y="21" font-family="Segoe UI, sans-serif" font-size="12" fill="#555" text-anchor="middle">QC Tote Label Maker</text>
+
+  <!-- Form area -->
+  <!-- DATE row -->
+  <text x="24" y="68" font-family="Segoe UI, sans-serif" font-size="13" fill="#333">DATE</text>
+  <rect x="140" y="52" width="340" height="28" rx="4" fill="#fff" stroke="#bbb"/>
+  <text x="152" y="71" font-family="Segoe UI, sans-serif" font-size="13" fill="#333">06/12/2026</text>
+  <text x="462" y="71" font-family="Segoe UI, sans-serif" font-size="13" fill="#aaa">▼</text>
+
+  <!-- INSPECTOR row -->
+  <text x="24" y="110" font-family="Segoe UI, sans-serif" font-size="13" fill="#333">INSPECTOR</text>
+  <rect x="140" y="94" width="340" height="28" rx="4" fill="#fff" stroke="#bbb"/>
+  <text x="152" y="113" font-family="Segoe UI, sans-serif" font-size="13" fill="#333">HANA KIM</text>
+  <text x="462" y="113" font-family="Segoe UI, sans-serif" font-size="13" fill="#aaa">▼</text>
+
+  <!-- ITEM row -->
+  <text x="24" y="152" font-family="Segoe UI, sans-serif" font-size="13" fill="#333">ITEM</text>
+  <rect x="140" y="136" width="340" height="28" rx="4" fill="#fff" stroke="#bbb"/>
+  <text x="152" y="155" font-family="Segoe UI, sans-serif" font-size="13" fill="#333">Busbar A</text>
+  <text x="462" y="155" font-family="Segoe UI, sans-serif" font-size="13" fill="#aaa">▼</text>
+
+  <!-- Set range row -->
+  <text x="24" y="196" font-family="Segoe UI, sans-serif" font-size="11" fill="#555">Set range</text>
+  <text x="24" y="210" font-family="Segoe UI, sans-serif" font-size="11" fill="#555">(start ~ end)</text>
+  <rect x="140" y="188" width="80" height="28" rx="4" fill="#fff" stroke="#bbb"/>
+  <text x="164" y="207" font-family="Segoe UI, sans-serif" font-size="13" fill="#333" text-anchor="middle">1</text>
+  <text x="236" y="207" font-family="Segoe UI, sans-serif" font-size="14" fill="#888">~</text>
+  <rect x="252" y="188" width="80" height="28" rx="4" fill="#fff" stroke="#bbb"/>
+  <text x="292" y="207" font-family="Segoe UI, sans-serif" font-size="13" fill="#333" text-anchor="middle">10</text>
+
+  <!-- Specific row -->
+  <text x="24" y="255" font-family="Segoe UI, sans-serif" font-size="11" fill="#555">특정 번호만</text>
+  <text x="24" y="269" font-family="Segoe UI, sans-serif" font-size="11" fill="#888">(선택)</text>
+  <rect x="140" y="244" width="340" height="28" rx="4" fill="#fff" stroke="#bbb"/>
+  <text x="152" y="263" font-family="Segoe UI, sans-serif" font-size="12" fill="#bbb">e.g. 3-6, 5-2  (비워두면 전체 범위 생성)</text>
+
+  <!-- Progress bar (hidden, faint) -->
+  <rect x="24" y="290" width="452" height="12" rx="6" fill="#e8e8e8" stroke="none"/>
+
+  <!-- Generate button -->
+  <rect x="24" y="314" width="452" height="42" rx="6" fill="#2e8b47"/>
+  <text x="250" y="341" font-family="Segoe UI, sans-serif" font-size="15" font-weight="700" fill="#fff" text-anchor="middle">Generate PDF</text>
+
+  <!-- Note -->
+  <text x="24" y="385" font-family="Segoe UI, sans-serif" font-size="11" fill="#888">Each page = exactly 4″ x 4″.  한 세트 = 1~8번, 총 8장.</text>
+</svg>
+
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-content">
+      <h3>DATE — 날짜 선택</h3>
+      <p>라벨에 인쇄될 날짜입니다. 기본값은 <strong>오늘 날짜</strong>로 자동 설정되며, 캘린더를 클릭해서 변경할 수 있습니다.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-content">
+      <h3>INSPECTOR — 검사자 이름 입력/선택</h3>
+      <p>라벨에 인쇄될 검사자 이름입니다. <strong>직접 타이핑하거나</strong>, 드롭다운을 열어 이전에 입력했던 이름을 선택할 수 있습니다.</p>
+      <div class="tip">
+        <strong>💡 이름 자동 저장:</strong> 새 이름을 입력하고 PDF를 생성하면, 다음 실행 시 드롭다운에 자동으로 추가됩니다.
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-content">
+      <h3>ITEM — 아이템 선택</h3>
+      <p>라벨 종류를 선택합니다. 아이템에 따라 라벨 제목과 번호 표시가 달라집니다.</p>
+      <ul class="field-list">
+        <li><strong>Busbar A</strong> — 라벨 제목: "Busbar A QC", 번호: <code>1-1 A</code> 형식</li>
+        <li><strong>Busbar B</strong> — 라벨 제목: "Busbar B QC", 번호: <code>1-1 B</code> 형식</li>
+        <li><strong>MICA</strong> — 라벨 제목: "MICA QC", 번호: <code>1-1</code> 형식 (suffix 없음)</li>
+      </ul>
+
+      <!-- Label preview -->
+      <div class="label-preview">
+        <div class="label-card">
+          <div class="lc-title">Busbar A QC</div>
+          <div class="lc-meta">DATE: 06/12/2026</div>
+          <div class="lc-meta">INSPECTOR: HANA KIM</div>
+          <div class="lc-abcd">A  B  C  D</div>
+          <div class="lc-num">1-1 A</div>
+        </div>
+        <div class="label-card">
+          <div class="lc-title">Busbar B QC</div>
+          <div class="lc-meta">DATE: 06/12/2026</div>
+          <div class="lc-meta">INSPECTOR: HANA KIM</div>
+          <div class="lc-abcd">A  B  C  D</div>
+          <div class="lc-num">1-1 B</div>
+        </div>
+        <div class="label-card">
+          <div class="lc-title">MICA QC</div>
+          <div class="lc-meta">DATE: 06/12/2026</div>
+          <div class="lc-meta">INSPECTOR: HANA KIM</div>
+          <div class="lc-abcd">A  B  C  D</div>
+          <div class="lc-num">1-1</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">4</div>
+    <div class="step-content">
+      <h3>Set range — 세트 범위 설정</h3>
+      <p>생성할 세트 범위를 입력합니다. <strong>한 세트 = 8장 (1번~8번)</strong>입니다.</p>
+      <ul class="field-list">
+        <li><strong>예시: 1 ~ 10</strong> — 1-1부터 10-8까지, 총 <strong>80장</strong> 생성</li>
+        <li><strong>예시: 3 ~ 3</strong> — 3-1부터 3-8까지, 총 <strong>8장</strong> 생성</li>
+        <li><strong>예시: 5 ~ 7</strong> — 5-1부터 7-8까지, 총 <strong>24장</strong> 생성</li>
+      </ul>
+      <div class="note">
+        <strong>특정 번호만(아래 항목)</strong>에 값이 있으면 Set range는 무시됩니다.
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">5</div>
+    <div class="step-content">
+      <h3>특정 번호만 (선택사항)</h3>
+      <p>일부 라벨만 다시 출력할 때 사용합니다. <strong>X-Y</strong> 형식으로, 쉼표 또는 줄바꿈으로 여러 개 입력 가능합니다.</p>
+      <ul class="field-list">
+        <li><strong>입력 예시:</strong> <code>3-6, 5-2, 8-1</code> → 3세트 6번, 5세트 2번, 8세트 1번 총 3장만 출력</li>
+        <li><strong>비워두면</strong> → Set range에 설정한 전체 범위 출력</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">6</div>
+    <div class="step-content">
+      <h3>Generate PDF 클릭</h3>
+      <p>버튼을 누르면 저장 위치를 묻는 대화창이 열립니다. 저장 경로를 선택하면 PDF 생성이 시작되고, 완료 후 자동으로 PDF가 열립니다.</p>
+      <div class="tip">
+        <strong>💡 생성되는 파일명 예시:</strong><br>
+        전체 범위: <code>Busbar_A_QC_1-10.pdf</code><br>
+        특정 번호: <code>Busbar_A_QC_3-6_5-2.pdf</code>
+      </div>
+      <div class="note">
+        라벨이 많을 때(80장 이상)는 생성에 수초 걸릴 수 있습니다. 진행률 바가 표시됩니다.
+      </div>
+    </div>
+  </div>
+</div></details>
+
+<!-- 팁 -->
+<details>
+<summary><h2><span class="icon">💡</span> 알아두면 편한 것들</h2><span class="chevron">▼</span></summary>
+<div class="section-body">
+  <ul class="field-list">
+    <li><strong>라벨 크기</strong> — 각 페이지는 정확히 4"×4"로 설정됩니다. 4×4 라벨 프린터에서 바로 출력하세요.</li>
+    <li><strong>A B C D 행</strong> — 라벨 하단에 A B C D가 인쇄됩니다. 검사 항목에 동그라미 표시용입니다.</li>
+    <li><strong>이름 삭제</strong> — 저장된 이름 목록에서 특정 이름을 지우려면 EXE 옆의 <code>inspector_names.json</code>을 메모장으로 열어 직접 편집하세요.</li>
+    <li><strong>EXE 첫 실행 느림</strong> — 처음 실행할 때 내부 파일 압축 해제 때문에 수초 걸릴 수 있습니다. 두 번째부터는 빠릅니다.</li>
+  </ul>
+</div></details>
+
+<footer>
+  문의/오류 보고: 담당자에게 연락주세요
+</footer>
+
+</div>
+</body>
+</html>
